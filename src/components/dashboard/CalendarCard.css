@@ -1,0 +1,15 @@
+.react-calendar__tile {
+  position: relative;
+}
+
+.event-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin: 0 auto;
+  margin-top: 2px;
+}
+
+.hide-default-date abbr {
+  display: none !important;
+}
