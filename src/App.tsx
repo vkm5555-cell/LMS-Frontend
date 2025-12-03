@@ -69,6 +69,9 @@ import EditBatch from "./pages/Admin/batch/EditBatch";
 import Batch from "./pages/Admin/batch/ListBatch";
 import ViewBatch from "./pages/Admin/batch/ViewBatch";
 import AddStudentToBatch from "./pages/Admin/batch/AddStudentToBatch";
+
+//Admin Course, content and chapter
+import ViewTopicDetail from "./pages/Admin/courses/ViewTopicDetail";
  
 
 export default function App() {
@@ -166,7 +169,9 @@ export default function App() {
             <Route path="coursecategories/addsubcat" element={<AddSubCourseCategory />} /> 
             <Route path="coursecategories/editsubcat/:id" element={<EditSubCourseCategory />} /> 
             <Route path=":id/add-chapter" element={<AddCourseChapter />} />
-            <Route path=":id/chapters/:chapterId" element={<ViewChapter />} />
+            <Route path=":id/chapters/:chapterId" element={<ViewChapter />} /> 
+            <Route path=":id/chapters/:chapterId" element={<ViewChapter />} /> 
+            <Route path="chapters/topics/:id" element={<ViewTopicDetail />} />
           </Route>
 
           <Route

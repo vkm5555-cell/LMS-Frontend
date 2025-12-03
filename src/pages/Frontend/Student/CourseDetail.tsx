@@ -600,11 +600,8 @@ function HtmlContentViewer({ it }: { it: any }) {
                                                   })()}
                                                 </div>
                                               </div>
-                                              <div className="flex-shrink-0 self-center">
-                                                <button onClick={async () => await openItemInModal(ch.id, items.indexOf(it))} className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700">
-                                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                                                  <span className="text-sm">Open</span>
-                                                </button>
+                                              <div className="flex-shrink-0 self-center">                                                
+                                               {it?.content_type === 'video' ? (  
                                                 <button
                                                   onClick={() => navigate(`/student-Dashboard/learn/${it.id}`)}
                                                   className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700"
@@ -614,6 +611,12 @@ function HtmlContentViewer({ it }: { it: any }) {
                                                   </svg>
                                                   <span className="text-sm">Open</span>
                                                 </button>
+                                                ) : 
+                                                 <button onClick={async () => await openItemInModal(ch.id, items.indexOf(it))} className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                                  <span className="text-sm">Open</span>
+                                                </button>
+                                                }
                                               </div>
                                             </li>
                                           ))}

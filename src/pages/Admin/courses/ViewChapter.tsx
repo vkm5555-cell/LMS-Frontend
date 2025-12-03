@@ -247,7 +247,7 @@ export default function ViewChapter() {
         formData.append("video_duration", String(0));
       }
 
-      if (contentType === "file" && fileUpload) {
+      if ((contentType === "file" || contentType === "video") && fileUpload) {
         formData.append("content_file", fileUpload);        
       }
 
@@ -387,7 +387,7 @@ export default function ViewChapter() {
 
       <Modal isOpen={isOpen} onClose={closeModal} className="max-w-4xl p-4">
         <div className="p-2 overflow-x-auto">
-          <h3 className="text-lg font-semibold mb-2">Add Chapter Content aszdasd</h3>
+          <h3 className="text-lg font-semibold mb-2">Add Chapter Content</h3>
           <form onSubmit={handleSaveContent} encType="multipart/form-data">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>

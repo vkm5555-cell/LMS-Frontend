@@ -29,6 +29,7 @@ interface ChapterContentTableProps {
 
 const ChapterContentTable: React.FC<ChapterContentTableProps> = ({ courseId, chapterId }) => {
   const [openIdx, setOpenIdx] = React.useState<number | null>(null);
+  //const navigate = useNavigate();
   const [showHtmlModal, setShowHtmlModal] = React.useState(false);
   const [htmlContentUrl, setHtmlContentUrl] = React.useState<string | null>(null);
 
@@ -113,8 +114,8 @@ const formattedContent = htmlContentUrl
   return (
     <div className="mt-8">
       <h3 className="text-lg font-semibold mb-4">Chapter Contents {ci}</h3>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border rounded">
+      <div>
+        <table className="min-w-full bg-white border rounded z-1">
           <thead>
             <tr className="bg-gray-100">
               <th className="px-4 py-2 text-left">Title</th>
@@ -210,7 +211,7 @@ const formattedContent = htmlContentUrl
                 <td className="px-4 py-2">{item.is_published ? 'Yes' : 'No'}</td>
                 <td className="px-4 py-2">{item.is_free ? 'Yes' : 'No'}</td>
                 <td className="px-4 py-2">
-                  <div className="relative inline-block chapter-content-dropdown">
+                  <div className="relative inline-block chapter-content-dropdown z-1">
                     <button
                       className="p-2 rounded-full hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 flex items-center justify-center"
                       tabIndex={0}
@@ -225,10 +226,23 @@ const formattedContent = htmlContentUrl
                     </button>
                     {openIdx === idx && (
                       <div
-                        className="absolute right-0 mt-2 w-36 bg-white border rounded shadow-lg z-10"
+                        className="absolute right-0 mt-2 w-36 bg-white border rounded shadow-lg z-1000"
                         onMouseEnter={() => setOpenIdx(idx)}
                         onMouseLeave={() => setOpenIdx(null)}
                       >
+
+                        <button
+                          className="block w-full text-left px-4 py-2 hover:bg-blue-50"
+                          onClick={() => {
+                            setOpenIdx(null);
+                            const url = `/courses/chapters/topics/${item.id}`;
+                            // open in new tab
+                            window.open(url, '_blank', 'noopener,noreferrer');
+                          }}
+                        >
+                          View
+                        </button>
+                        
                         <button
                           className="block w-full text-left px-4 py-2 hover:bg-blue-50"
                           onClick={() => {

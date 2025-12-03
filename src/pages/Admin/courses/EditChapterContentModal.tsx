@@ -68,7 +68,7 @@ const EditChapterContentModal: React.FC<EditChapterContentModalProps> = ({
       formData.append("slug", slug);
       formData.append("description", description);
       formData.append("content_type", contentType);
-      if (contentType === "file" && fileUpload) {
+      if ((contentType === "file" || contentType === "video") && fileUpload) {
         formData.append("content_file", fileUpload);
       } else {
         formData.append("content_url", contentUrl);
@@ -167,7 +167,7 @@ const EditChapterContentModal: React.FC<EditChapterContentModalProps> = ({
             </div>
 
             {/* File or URL */}
-            {contentType === "file" ? (
+            {(contentType === "file" || contentType === "video") ? (
               <div>
                 <label className="block text-sm font-medium mb-1">Upload File</label>
                 <input
