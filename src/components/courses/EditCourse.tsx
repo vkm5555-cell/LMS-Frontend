@@ -16,6 +16,11 @@ const courseModes = [
 ];
 const levels = ["Beginner", "Intermediate", "Advanced"];
 const languages = ["English", "Hindi", "Spanish", "French", "German"];
+const cafeteriaOptions = [
+  { id: "core", name: "Core" },
+  { id: "Elective Courses", name: "Elective Courses" },
+  { id: "Skill-based Courses", name: "Skill-based Courses" },
+];
 
 export default function EditCourseComponent() {
   const { id } = useParams();
@@ -67,6 +72,10 @@ export default function EditCourseComponent() {
   }, [id]);
 
   const schema = Yup.object().shape({
+    cafeteria: Yup.string().required("Cafeteria is required").max(200),
+    nsqf_level: Yup.string().required("NSQF Level is required").max(200),
+    credit: Yup.string().required("Credit is required").max(200),
+    course_time: Yup.string().required("Course Time is required").max(200),
     title: Yup.string().required("Title is required").max(200),
     description: Yup.string().required("Description is required").max(5000),
     subtitle: Yup.string().required("Subtitle is required").max(255),
@@ -107,6 +116,11 @@ export default function EditCourseComponent() {
       const token = localStorage.getItem("token");
       const formDataToSend = new FormData();
       formDataToSend.append("title", formData.title);
+  // Add fields present in AddCourse form so updates include them
+      formDataToSend.append("cafeteria", formData.cafeteria ?? "");
+      formDataToSend.append("nsqf_level", formData.nsqf_level ?? "");
+      formDataToSend.append("credit", formData.credit ?? "");
+      formDataToSend.append("course_time", formData.course_time ?? "");
       formDataToSend.append("description", formData.description);
       formDataToSend.append("subtitle", formData.subtitle);
       formDataToSend.append("learning_objectives", formData.learning_objectives);
@@ -193,7 +207,7 @@ export default function EditCourseComponent() {
                 <label className="block text-sm font-medium mb-1">Course Category</label>
                 <select
                   name="category_id"
-                  value={formData.category_id}
+                  value={formData.category_id} 
                   onChange={handleChange}
                   className={`w-full rounded-lg border p-2 focus:border-indigo-500 focus:ring-indigo-500 ${errors.category_id ? "border-red-500" : "border-gray-300"}`}
                 >
@@ -318,6 +332,60 @@ export default function EditCourseComponent() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
+                <label className="block text-sm font-medium mb-1">Cafeteria</label>
+                <select
+                  name="cafeteria"
+                  value={formData.cafeteria}
+                  onChange={handleChange}
+                  className={`w-full rounded-lg border p-2 focus:border-indigo-500 focus:ring-indigo-500 ${errors.cafeteria ? "border-red-500" : "border-gray-300"}`}
+                >
+                  <option value="">Select Cafeteria</option>
+                  {cafeteriaOptions.map(option => (
+                    <option key={option.id} value={option.id}>{option.name}</option>
+                  ))}
+                </select>
+                {errors.cafeteria && <p className="text-red-600 text-sm mt-1">{errors.cafeteria}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Credit</label>
+                <input
+                  type="text"
+                  name="credit"
+                  value={formData.credit}
+                  placeholder="Enter Credit"
+                  onChange={handleChange}
+                  className={`w-full rounded-lg border p-2 focus:border-indigo-500 focus:ring-indigo-500 ${errors.credit ? "border-red-500" : "border-gray-300"}`}
+                />
+                {errors.credit && <p className="text-red-600 text-sm mt-1">{errors.credit}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">NSQF Level</label>
+                <input
+                  type="text"
+                  name="nsqf_level"
+                  value={formData.nsqf_level}
+                  placeholder="Enter NSQF Level"
+                  onChange={handleChange}
+                  className={`w-full rounded-lg border p-2 focus:border-indigo-500 focus:ring-indigo-500 ${errors.nsqf_level ? "border-red-500" : "border-gray-300"}`}
+                />
+                {errors.nsqf_level && <p className="text-red-600 text-sm mt-1">{errors.nsqf_level}</p>}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium mb-1">Course Time</label>
+                <input
+                  type="text"
+                  name="course_time"
+                  value={formData.course_time}
+                  placeholder="Enter Course Time"
+                  onChange={handleChange}
+                  className={`w-full rounded-lg border p-2 focus:border-indigo-500 focus:ring-indigo-500 ${errors.course_time ? "border-red-500" : "border-gray-300"}`}
+                />
+                {errors.course_time && <p className="text-red-600 text-sm mt-1">{errors.course_time}</p>}
+              </div>
+              <div>
                 <label className="block text-sm font-medium mb-1">Language</label>
                 <select
                   name="language"
@@ -345,18 +413,7 @@ export default function EditCourseComponent() {
                 </select>
                 {errors.level && <p className="text-red-600 text-sm mt-1">{errors.level}</p>}
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Topic Tags (comma separated)</label>
-                <input
-                  type="text"
-                  name="topic_tags"
-                  value={formData.topic_tags}
-                  placeholder="e.g. React, Node, API"
-                  onChange={handleChange}
-                  className={`w-full rounded-lg border p-2 focus:border-indigo-500 focus:ring-indigo-500 ${errors.topic_tags ? "border-red-500" : "border-gray-300"}`}
-                />
-                {errors.topic_tags && <p className="text-red-600 text-sm mt-1">{errors.topic_tags}</p>}
-              </div>
+              
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

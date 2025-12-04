@@ -12,9 +12,7 @@ export default function List() {
         title="BBD ED TECH LMS | Courses List"
         description="BBD ED TECH LMS - Courses List"
       />
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Courses List</h1>
-      </div>
+     
       <PageBreadcrumb pageTitle="Courses List" />
       <div className="space-y-6">
         <ComponentCard

@@ -66,7 +66,7 @@ export default function AddUser() {
     role: Yup.string().required("Role is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
     mobile: Yup.string().required("Mobile is required"),
-  dob: Yup.date().nullable(),
+    dob: Yup.date().nullable(),
     father_name: Yup.string(),
     mother_name: Yup.string(),
   });
@@ -136,69 +136,73 @@ export default function AddUser() {
             <p className={`mt-3 text-sm ${message.toLowerCase().includes("success") ? "text-green-600" : "text-red-600"}`}>{message}</p>
           )}
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium mb-1">Name</label>
-              <input type="text" name="name" value={formData.name} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.name ? "border-red-500" : "border-gray-300"}`} />
-              {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Name</label>
+                <input type="text" name="name" value={formData.name} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.name ? "border-red-500" : "border-gray-300"}`} />
+                {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Username</label>
+                <input type="text" name="username" value={formData.username} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.username ? "border-red-500" : "border-gray-300"}`} />
+                {errors.username && <p className="text-red-600 text-sm mt-1">{errors.username}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Password</label>
+                <input type="password" name="password" value={formData.password} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.password ? "border-red-500" : "border-gray-300"}`} />
+                {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Role</label>
+                <select name="role" value={formData.role} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.role ? "border-red-500" : "border-gray-300"}`}>
+                  <option value="">Select Role</option>
+                  {roles.map((role) => (
+                    <option key={role} value={role}>{role.charAt(0).toUpperCase() + role.slice(1)}</option>
+                  ))}
+                </select>
+                {errors.role && <p className="text-red-600 text-sm mt-1">{errors.role}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <input type="email" name="email" value={formData.email} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.email ? "border-red-500" : "border-gray-300"}`} />
+                {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Mobile</label>
+                <input type="text" name="mobile" value={formData.mobile} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.mobile ? "border-red-500" : "border-gray-300"}`} />
+                {errors.mobile && <p className="text-red-600 text-sm mt-1">{errors.mobile}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Date of Birth</label>
+                <DatePicker
+                  selected={formData.dob}
+                  onChange={handleDateChange}
+                  dateFormat="yyyy-MM-dd"
+                  className={`w-full rounded-lg border p-2 ${errors.dob ? "border-red-500" : "border-gray-300"}`}
+                  placeholderText="Select date of birth"
+                  showMonthDropdown
+                  showYearDropdown
+                  dropdownMode="select"
+                  maxDate={new Date()}
+                />
+                {errors.dob && <p className="text-red-600 text-sm mt-1">{errors.dob}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Father's Name</label>
+                <input type="text" name="father_name" value={formData.father_name} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.father_name ? "border-red-500" : "border-gray-300"}`} />
+                {errors.father_name && <p className="text-red-600 text-sm mt-1">{errors.father_name}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Mother's Name</label>
+                <input type="text" name="mother_name" value={formData.mother_name} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.mother_name ? "border-red-500" : "border-gray-300"}`} />
+                {errors.mother_name && <p className="text-red-600 text-sm mt-1">{errors.mother_name}</p>}
+              </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Username</label>
-              <input type="text" name="username" value={formData.username} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.username ? "border-red-500" : "border-gray-300"}`} />
-              {errors.username && <p className="text-red-600 text-sm mt-1">{errors.username}</p>}
+              <button type="submit" disabled={loading} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+                {loading ? "Creating..." : "Create User"}
+              </button>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Password</label>
-              <input type="password" name="password" value={formData.password} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.password ? "border-red-500" : "border-gray-300"}`} />
-              {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Role</label>
-              <select name="role" value={formData.role} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.role ? "border-red-500" : "border-gray-300"}`}>
-                <option value="">Select Role</option>
-                {roles.map((role) => (
-                  <option key={role} value={role}>{role.charAt(0).toUpperCase() + role.slice(1)}</option>
-                ))}
-              </select>
-              {errors.role && <p className="text-red-600 text-sm mt-1">{errors.role}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Email</label>
-              <input type="email" name="email" value={formData.email} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.email ? "border-red-500" : "border-gray-300"}`} />
-              {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Mobile</label>
-              <input type="text" name="mobile" value={formData.mobile} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.mobile ? "border-red-500" : "border-gray-300"}`} />
-              {errors.mobile && <p className="text-red-600 text-sm mt-1">{errors.mobile}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Date of Birth</label>
-              <DatePicker
-                selected={formData.dob}
-                onChange={handleDateChange}
-                dateFormat="yyyy-MM-dd"
-                className={`w-full rounded-lg border p-2 ${errors.dob ? "border-red-500" : "border-gray-300"}`}
-                placeholderText="Select date of birth"
-                showMonthDropdown
-                showYearDropdown
-                dropdownMode="select"
-                maxDate={new Date()}
-              />
-              {errors.dob && <p className="text-red-600 text-sm mt-1">{errors.dob}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Father's Name</label>
-              <input type="text" name="father_name" value={formData.father_name} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.father_name ? "border-red-500" : "border-gray-300"}`} />
-              {errors.father_name && <p className="text-red-600 text-sm mt-1">{errors.father_name}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Mother's Name</label>
-              <input type="text" name="mother_name" value={formData.mother_name} onChange={handleChange} className={`w-full rounded-lg border p-2 ${errors.mother_name ? "border-red-500" : "border-gray-300"}`} />
-              {errors.mother_name && <p className="text-red-600 text-sm mt-1">{errors.mother_name}</p>}
-            </div>
-            <button type="submit" disabled={loading} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50">
-              {loading ? "Creating..." : "Create User"}
-            </button>
           </form>
         </ComponentCard>
       </div>

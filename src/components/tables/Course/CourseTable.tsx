@@ -102,7 +102,7 @@ const CourseTable: React.FC = () => {
       return;
     }
     if (action === 'View') {
-      alert(`Are You Sure You Want To ${action} for Course: ${course.title}`);
+      //alert(`Are You Sure You Want To ${action} for Course: ${course.title}`);
       setOpenDropdown(null);
       navigate(`/courses/view/${course.id}`);
       return;
@@ -156,7 +156,7 @@ const CourseTable: React.FC = () => {
   }, [openDropdown]);
 
   return (
-    <div className="overflow-x-auto">
+    <div>
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-4">
         <input
@@ -199,33 +199,33 @@ const CourseTable: React.FC = () => {
         <table className="min-w-full divide-y divide-gray-200">
           <thead>
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">#S.No</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subtitle</th> */}
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course Price</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Language</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Level</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course Type</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course Mode</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category ID</th>
-              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Topic Tags</th> */}
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">#S.No</th>
+              <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+              {/* <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Subtitle</th> */}
+              <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Course Price</th>
+              <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Language</th>
+              <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Level</th>
+              <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Course Type</th>
+              <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Course Mode</th>
+              <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Category ID</th>
+              {/* <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Topic Tags</th> */}
+              <th className="px-4 py-1 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {courses.map((course, idx) => (
               <tr key={course.id}>
-                <td className="px-6 py-4 whitespace-nowrap">{(page - 1) * pageSize + idx + 1}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{course.title}</td>
-                {/* <td className="px-6 py-4 whitespace-nowrap">{course.subtitle}</td> */}
-                <td className="px-6 py-4 whitespace-nowrap">{course.course_price}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{course.language}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{course.level}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{course.course_type}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{course.course_mode}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{course.category_name}</td>
-                {/* <td className="px-6 py-4 whitespace-nowrap">{Array.isArray(course.topic_tags) ? course.topic_tags.join(', ') : course.topic_tags}</td> */}
-                <td className="px-6 py-4 whitespace-nowrap relative">
+                <td className="px-4 py-1 whitespace-nowrap">{(page - 1) * pageSize + idx + 1}</td>
+                <td className="px-4 py-1 whitespace-nowrap">{course.title}</td>
+                {/* <td className="px-4 py-1 whitespace-nowrap">{course.subtitle}</td> */}
+                <td className="px-4 py-1 whitespace-nowrap">{course.course_price}</td>
+                <td className="px-4 py-1 whitespace-nowrap">{course.language}</td>
+                <td className="px-4 py-1 whitespace-nowrap">{course.level}</td>
+                <td className="px-4 py-1 whitespace-nowrap">{course.course_type}</td>
+                <td className="px-4 py-1 whitespace-nowrap">{course.course_mode}</td>
+                <td className="px-4 py-1 whitespace-nowrap">{course.category_name}</td>
+                {/* <td className="px-4 py-1 whitespace-nowrap">{Array.isArray(course.topic_tags) ? course.topic_tags.join(', ') : course.topic_tags}</td> */}
+                <td className="px-4 py-1 whitespace-nowrap relative">
                   <button
                     className="p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                     onClick={() => handleDropdown(course.id)}
@@ -281,9 +281,30 @@ const CourseTable: React.FC = () => {
         >
           Previous
         </button>
-        <span>
-          Page {page} of {Math.ceil(total / pageSize) || 1}
-        </span>
+
+        <div className="flex items-center gap-2">
+          {/* Page numbers */}
+          {(() => {
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            const pages: number[] = [];
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+            return (
+              <div className="flex items-center space-x-1">
+                {pages.map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={`px-2 py-1 rounded ${p === page ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            );
+          })()}
+          <span className="text-sm text-gray-600">of {Math.max(1, Math.ceil(total / pageSize))}</span>
+        </div>
+
         <button
           className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
           onClick={() => setPage((p) => Math.min(Math.ceil(total / pageSize), p + 1))}
