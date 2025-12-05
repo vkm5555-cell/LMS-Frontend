@@ -70,6 +70,9 @@ import Batch from "./pages/Admin/batch/ListBatch";
 import ViewBatch from "./pages/Admin/batch/ViewBatch";
 import AddStudentToBatch from "./pages/Admin/batch/AddStudentToBatch";
 
+// Admin Assignment
+import CreateAssignmentPage from "./pages/Admin/assignment/CreateAssignmentPage";
+
 //Admin Course, content and chapter
 import ViewTopicDetail from "./pages/Admin/courses/ViewTopicDetail";
  
@@ -182,20 +185,18 @@ export default function App() {
             <Route path="addBatch" element={<AddBatch />} />  
             <Route path="editBatch/:id" element={<EditBatch />} /> 
             <Route path="viewBatch/:id" element={<ViewBatch />} /> 
-            <Route path="add-student/:id" element={<AddStudentToBatch />} />
+            <Route path="add-student/:id" element={<AddStudentToBatch />} />            
+          </Route>
 
-            {/* <Route path="view/:id" element={<ViewCourse />} />
-            <Route path="edit/:id" element={<EditCoursePage />} />
-            <Route path="type/add" element={<AddCourseType />} />
-            <Route path="type/list" element={<CourseTypeList />} />
-            <Route path="type/edit/:id" element={<EditCourseType />} />
-            <Route path="coursecategories/add" element={<AddCourseCategory />} />
-            <Route path="coursecategories/list" element={<CourseCategoryList />} />
-            <Route path="coursecategories/edit/:id" element={<EditCourseCategory />} /> 
-            <Route path="coursecategories/addsubcat" element={<AddSubCourseCategory />} /> 
-            <Route path="coursecategories/editsubcat/:id" element={<EditSubCourseCategory />} /> 
-            <Route path=":id/add-chapter" element={<AddCourseChapter />} />
-            <Route path=":id/chapters/:chapterId" element={<ViewChapter />} /> */}
+          <Route
+            path="/Assignment"
+            element={<ProtectedRoute allowedRoles={["Admin", "Teacher"]} />}
+          >
+            {/* <Route index element={<Assignment />} /> */}
+            <Route path="add" element={<CreateAssignmentPage />} />
+            {/* <Route path="edit/:id" element={<EditAssignment />} />
+            <Route path="view/:id" element={<ViewAssignment />} />
+            <Route path="add-student/:id" element={<AddStudentToAssignment />} /> */}
           </Route>
 
 
