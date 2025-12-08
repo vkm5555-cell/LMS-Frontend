@@ -72,6 +72,7 @@ import AddStudentToBatch from "./pages/Admin/batch/AddStudentToBatch";
 
 // Admin Assignment
 import CreateAssignmentPage from "./pages/Admin/assignment/CreateAssignmentPage";
+import ListAssignmentsPage from "./pages/Admin/assignment/ListAssignmentsPage";
 
 //Admin Course, content and chapter
 import ViewTopicDetail from "./pages/Admin/courses/ViewTopicDetail";
@@ -193,7 +194,8 @@ export default function App() {
             element={<ProtectedRoute allowedRoles={["Admin", "Teacher"]} />}
           >
             {/* <Route index element={<Assignment />} /> */}
-            <Route path="add" element={<CreateAssignmentPage />} />
+            <Route path="add" element={<CreateAssignmentPage />} /> 
+            <Route path="list" element={<ListAssignmentsPage />} />
             {/* <Route path="edit/:id" element={<EditAssignment />} />
             <Route path="view/:id" element={<ViewAssignment />} />
             <Route path="add-student/:id" element={<AddStudentToAssignment />} /> */}

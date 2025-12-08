@@ -14,6 +14,7 @@ import {
   PlugInIcon,
   TableIcon,
   UserCircleIcon,
+  TaskIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
@@ -70,6 +71,14 @@ const navItems: NavItem[] = [
     subItems: [ 
       { name: "Add Batch", path: "/Batch/addBatch", roles: ["Teacher"] },
       { name: "List Batche", path: "/Batch", roles: ["Teacher"] },   
+    ],
+  },
+  {
+    icon: <TaskIcon />,
+    name: "Assignment",
+    subItems: [ 
+      { name: "Add Assignment", path: "/Assignment/add", roles: ["Teacher"] },
+      { name: "List Assignments", path: "/Assignment/list", roles: ["Teacher"] },   
     ],
   },
   {
