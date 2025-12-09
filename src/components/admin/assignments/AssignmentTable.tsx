@@ -36,13 +36,13 @@ const AssignmentTable: React.FC = () => {
           params.append("q", filters.title);
           params.append("search", filters.title);
         }
-  // include several common pagination param names so backend accepts one of them
-  const offset = (page - 1) * PAGE_SIZE;
-  params.append("skip", String(offset));
-  params.append("offset", String(offset));
-  params.append("page", String(page));
-  params.append("limit", String(PAGE_SIZE));
-  params.append("per_page", String(PAGE_SIZE));
+        // include several common pagination param names so backend accepts one of them
+        const offset = (page - 1) * PAGE_SIZE;
+        params.append("skip", String(offset));
+        params.append("offset", String(offset));
+        params.append("page", String(page));
+        params.append("limit", String(PAGE_SIZE));
+        params.append("per_page", String(PAGE_SIZE));
         // cache-busting to avoid proxy/server returning cached results for different pages
         params.append("_t", String(Date.now()));
         const res = await fetch(`${apiBaseUrl}/course-assignments?${params.toString()}`, {
@@ -94,16 +94,16 @@ const AssignmentTable: React.FC = () => {
     setOpenDropdown(null);
     const token = localStorage.getItem("token");
     if (action === "View") {
-      navigate(`/assignments/view/${item.id}`);
+      navigate(`/Assignment/view/${item.id}`);
       return;
     }
     if (action === "Edit") {
-      navigate(`/assignments/edit/${item.id}`);
+      navigate(`/Assignment/edit/${item.id}`);
       return;
     }
     if (action === "Assign") {
       // open assign to student UI - navigate to a page where admin/teacher can assign
-      navigate(`/assignments/${item.id}/assign`);
+      navigate(`/Assignment/${item.id}/assign`);
       return;
     }
     if (action === "Delete") {
