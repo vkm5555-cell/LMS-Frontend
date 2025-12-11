@@ -78,7 +78,7 @@ export default function EnrolledCourses() {
             // The API may return either a course object or an enrollment wrapper with a `course` field
             const courseObj = c.course ?? c;
             const id = courseObj.id ?? c.id ?? courseObj.course_id;
-            const img = courseObj.image || courseObj.img || courseObj.thumbnail || '/forntend/certificates_course/free-artificial-intelligence.jpg';
+            const img = courseObj.course_thumb || courseObj.course_thumb || courseObj.course_thumb || '/forntend/certificates_course/free-artificial-intelligence.jpg';
             const title = courseObj.title || courseObj.name || courseObj.course_title || 'Untitled Course';
             const desc = courseObj.desc || courseObj.description || courseObj.summary || '';
             const instructor = courseObj.instructor || courseObj.teacher || c.instructor || '';
