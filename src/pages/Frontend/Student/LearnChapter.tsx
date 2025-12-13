@@ -6,6 +6,7 @@ import Navbar from '../../../components/common/frontend/Navbar';
 import FrontFooter from '../../../components/common/frontend/FrontFooter';
 import { toSrc, tryAuthFetchAndSet } from '../../../utils/videoUtils';
 import Discussions from '../../../components/courses/chapter/Discussions';
+import Transcript from '../../../components/courses/chapter/Transcript';
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 export default function LearnChapter() {
@@ -18,6 +19,10 @@ export default function LearnChapter() {
   const [activeTab, setActiveTab] = useState<'transcript' | 'content' | 'detail'>('transcript');
   const [videoError, setVideoError] = useState<string | null>(null);
   const [attemptedAuthFetch, setAttemptedAuthFetch] = useState(false);
+  const [transcriptLoading, setTranscriptLoading] = useState(false);
+
+  // Transcript state
+  // transcript is handled by the Transcript component when autoGenerate=true
 
   const { id } = useParams();
   const [error, setError] = useState("");
@@ -54,6 +59,9 @@ export default function LearnChapter() {
   fetchChapterContent();
 }, [id]);
 
+// Fetch transcript lazily when user opens the transcript tab
+// transcript fetching moved into `Transcript` component (autoGenerate)
+
 
 
 
@@ -79,13 +87,7 @@ export default function LearnChapter() {
   };
 
   // Dummy transcript data (start in seconds)
-  const transcript1 = [
-    { start: 0, end: 12, text: 'Welcome to the Introduction to Java 8. In this chapter we will cover lambda expressions and streams.' },
-    { start: 12, end: 45, text: 'First, let us look at how lambda expressions simplify anonymous classes and make code more concise.' },
-    { start: 45, end: 90, text: 'Next, we explore the Stream API and how it enables declarative processing of collections.' },
-    { start: 90, end: 180, text: 'We will also see how to chain stream operations and use collectors to gather results.' },
-    { start: 180, end: 300, text: 'Finally, a quick recap and some pointers for further study.' },
-  ];
+  // demo transcript removed — Transcript component will fetch when autoGenerate=true
 
   const seekTo = (seconds: number) => {
     if (!videoRef.current) return;
@@ -113,7 +115,7 @@ export default function LearnChapter() {
           {/* ================= LEFT: VIDEO PLAYER ================= */}
           <div className="lg:col-span-3">
             <div className="border rounded p-4">
-              <div className="w-full h-[420px] bg-black flex items-center justify-center">
+              <div className="w-full h-[420px] bg-black relative flex items-center justify-center">
                 {loading ? (
                   <div className="text-sm text-gray-400">Loading video…</div>
                 ) : (
@@ -127,6 +129,13 @@ export default function LearnChapter() {
                     >
                       <source src={toSrc(result?.content_url ?? result?.file_url)} type="video/mp4" />
                     </video>
+
+                    {/* Transcript loading overlay on top of video */}
+                    {transcriptLoading && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                        <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin" />
+                      </div>
+                    )}
 
                     {videoError && (
                       <div className="mt-3 text-sm text-red-500">{videoError}</div>
@@ -203,23 +212,17 @@ export default function LearnChapter() {
 
                 {/* TRANSCRIPT TAB */}
                 {activeTab === 'transcript' && (
-                  <div className="space-y-3">
-                    <div className="text-xs text-gray-500 mb-2">Video Transcript</div>
-                    <div className="h-[420px] overflow-y-auto bg-white border rounded p-3 text-sm space-y-3">
-                      {transcript1.map((t, idx) => {
-                        const active = currentTime >= t.start && currentTime < t.end;
-                        return (
-                          <div key={idx} className={`p-2 rounded ${active ? 'bg-indigo-50 border-l-4 border-indigo-600' : ''}`}>
-                            <div className="flex items-center justify-between">
-                              <div className="text-xs text-gray-600">{new Date(t.start * 1000).toISOString().substr(14, 5)}</div>
-                              <button onClick={() => seekTo(t.start)} className="text-xs text-indigo-600 hover:underline">Play from here</button>
-                            </div>
-                            <div className="mt-1 text-gray-800">{t.text}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                  <Transcript
+                    transcript={null}
+                    autoGenerate={true}
+                    courseId={result?.course_id ?? null}
+                    chapterId={id ?? result?.chapter_id ?? null}
+                    contentId={result?.id ?? null}
+                    videoUrl={result?.content_url ?? result?.file_url ?? content.file_url}
+                    onLoadingChange={setTranscriptLoading}
+                    currentTime={currentTime}
+                    onSeek={seekTo}
+                  />
                 )}
 
                 {/* CONTENT TAB */}

@@ -202,10 +202,7 @@ export default function App() {
             {/* <Route path="view/:id" element={<ViewAssignment />} />
             <Route path="add-student/:id" element={<AddStudentToAssignment />} /> */}
           </Route>
-
-
-
-          
+       
 
           {/* Profile */}
           <Route
