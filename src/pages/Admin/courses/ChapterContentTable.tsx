@@ -235,7 +235,12 @@ const formattedContent = htmlContentUrl
                           className="block w-full text-left px-4 py-2 hover:bg-blue-50"
                           onClick={() => {
                             setOpenIdx(null);
-                            const url = `/courses/chapters/topics/${item.id}`;
+                            // Include courseId and chapterId as query params so the topic page
+                            // can know the context it was opened from.
+                            const params = new URLSearchParams();
+                            if (courseId != null) params.set('courseId', String(courseId));
+                            if (chapterId != null) params.set('chapterId', String(chapterId));
+                            const url = `/courses/chapters/topics/${item.id}${params.toString() ? `?${params.toString()}` : ''}`;
                             // open in new tab
                             window.open(url, '_blank', 'noopener,noreferrer');
                           }}

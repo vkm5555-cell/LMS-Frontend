@@ -39,26 +39,21 @@ const Transcript: React.FC<Props> = ({
   videoUrl,
   onLoadingChange,
 }) => {
-  const [internal, setInternal] = useState<TranscriptItem[] | null>(
-    transcript ?? null,
-  );
+  const [internal, setInternal] = useState<TranscriptItem[] | null>(transcript ?? null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // notify parent when loading state changes
   useEffect(() => {
     if (typeof onLoadingChange === "function") onLoadingChange(loading);
   }, [loading, onLoadingChange]);
 
   useEffect(() => {
-    // keep internal in sync when prop changes
     setInternal(transcript ?? null);
   }, [transcript]);
 
   useEffect(() => {
-    if (internal && internal.length > 0) return; // already have
+    if (internal && internal.length > 0) return;
     if (!autoGenerate) return;
-    // Need at least a videoUrl or chapterId (prefer course/content ids too)
     if (!videoUrl && !chapterId) return;
 
     const run = async () => {
@@ -68,19 +63,37 @@ const Transcript: React.FC<Props> = ({
         const apiBase = (import.meta.env.VITE_API_BASE_URL as string) || "";
         const token = localStorage.getItem("token");
 
-        // Normalize videoUrl: if it's relative, prepend VITE_API_BASE_URL from env
-        let videoSrc = videoUrl ?? undefined;
-        if (typeof videoSrc === "string" && videoSrc) {
-          // if not an absolute URL, join with apiBase
-          if (!/^https?:\/\//i.test(videoSrc) && apiBase) {
-            const base = apiBase.replace(/\/$/, "");
-            videoSrc = `${base}/${videoSrc.replace(/^\//, "")}`;
-          }
+        // Normalize video url
+        let videoSrc: string | undefined = typeof videoUrl === "string" ? videoUrl : undefined;
+        if (videoSrc && !/^https?:\/\//i.test(videoSrc) && apiBase) {
+          const base = apiBase.replace(/\/$/, "");
+          videoSrc = `${base}/${videoSrc.replace(/^\//, "")}`;
         }
 
-        const payload: any = { videoUrl: videoSrc ?? undefined, chapterId };
-        if (courseId) payload.courseId = courseId;
-        if (contentId) payload.contentId = contentId;
+        // Build body with both camelCase and snake_case ids where helpful
+        const body: any = {};
+        if (courseId != null) body.courseId = courseId;
+        if (chapterId != null) body.chapterId = chapterId;
+        if (contentId != null) body.contentId = contentId;
+        if (body.courseId != null) body.course_id = body.courseId;
+        if (body.chapterId != null) body.chapter_id = body.chapterId;
+        if (body.contentId != null) body.content_id = body.contentId;
+
+        const normalizedVideo = videoSrc ? String(videoSrc) : "";
+        if (!normalizedVideo) {
+          setError('videoUrl is required for transcript generation');
+          setLoading(false);
+          return;
+        }
+        body.videoUrl = normalizedVideo;
+        body.videoUrl = normalizedVideo;
+
+        // Minimal payload expected by backend
+        const payload: any = {
+          body,
+          video_url: normalizedVideo,
+          videoUrl: normalizedVideo,
+        };
 
         const res = await fetch(`${apiBase}/transcript/generate`, {
           method: "POST",
@@ -99,8 +112,6 @@ const Transcript: React.FC<Props> = ({
         }
 
         let segments: TranscriptItem[] = [];
-
-        // Prefer array-shaped responses (multiple possible keys)
         const arr = Array.isArray(data.data)
           ? data.data
           : Array.isArray(data.segments)
@@ -112,12 +123,11 @@ const Transcript: React.FC<Props> = ({
         if (arr) {
           segments = arr.map((s: any) => {
             const start = Number(s.start ?? s.start_time ?? s.from ?? 0) || 0;
-            const end = Number(s.end ?? s.end_time ?? s.to ?? (start + 5)) || (start + 5);
+            const end = Number(s.end ?? s.end_time ?? s.to ?? start + 5) || start + 5;
             const text = String(s.text ?? s.content ?? s.transcript ?? s.t ?? "");
             return { start, end, text } as TranscriptItem;
           });
         } else if (typeof data.transcript === "string" && data.transcript.trim()) {
-          // Single string transcript returned — show as a single segment (0..5s fallback)
           segments = [{ start: 0, end: 5, text: data.transcript }];
         } else if (typeof data.data === "string" && data.data.trim()) {
           segments = [{ start: 0, end: 5, text: data.data }];
@@ -138,7 +148,6 @@ const Transcript: React.FC<Props> = ({
 
   const items = internal ?? [];
 
-  // Refs for scrolling the active transcript item into view
   const containerRef = useRef<HTMLDivElement | null>(null);
   const itemRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const prevActive = useRef<number | null>(null);
@@ -158,7 +167,6 @@ const Transcript: React.FC<Props> = ({
 
     const containerRect = containerRef.current.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
-    // If element is not fully visible within the container, scroll the container only
     if (elRect.top < containerRect.top || elRect.bottom > containerRect.bottom) {
       const container = containerRef.current!;
       const relativeTop = elRect.top - containerRect.top + container.scrollTop;
@@ -181,16 +189,10 @@ const Transcript: React.FC<Props> = ({
             <div
               key={idx}
               ref={(el) => { itemRefs.current[idx] = el; }}
-              className={`p-2 rounded ${active ? "bg-indigo-50 border-l-4 border-indigo-600" : ""}`}
-            >
+              className={`p-2 rounded ${active ? "bg-indigo-50 border-l-4 border-indigo-600" : ""}`}>
               <div className="flex items-center justify-between">
                 <div className="text-xs text-gray-600">{formatTime(t.start)}</div>
-                <button
-                  onClick={() => onSeek(t.start)}
-                  className="text-xs text-indigo-600 hover:underline"
-                >
-                  Play from here
-                </button>
+                <button onClick={() => onSeek(t.start)} className="text-xs text-indigo-600 hover:underline">Play from here</button>
               </div>
               <div className="mt-1 text-gray-800">{t.text}</div>
             </div>

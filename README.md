@@ -75,6 +75,20 @@ git clone https://github.com/TailAdmin/free-react-tailwind-admin-dashboard.git
 
 ## Components
 
+## Optional: Encrypted topic links
+
+This project includes a small client-side helper to encrypt short payloads (course/chapter/topic IDs) when opening topic pages from the admin UI. To enable it, set the environment variable `VITE_ENCRYPTION_KEY` in your `.env` (or build environment) to a sufficiently random passphrase. Example:
+
+```
+VITE_ENCRYPTION_KEY=your-very-secret-passphrase-here
+```
+
+Notes:
+- The key is used in the browser to derive an AES-GCM key with PBKDF2. Keep it secret and rotate if leaked.
+- If the variable is not set, the app will fall back to sending plain `courseId` and `chapterId` query params.
+- This is meant to obfuscate the IDs in URLs; it is not a substitute for server-side authorization checks.
+
+
 TailAdmin is a pre-designed starting point for building a web-based dashboard using React.js and Tailwind CSS. The
 template includes:
 

@@ -175,8 +175,7 @@ export default function App() {
             <Route path="coursecategories/addsubcat" element={<AddSubCourseCategory />} /> 
             <Route path="coursecategories/editsubcat/:id" element={<EditSubCourseCategory />} /> 
             <Route path=":id/add-chapter" element={<AddCourseChapter />} />
-            <Route path=":id/chapters/:chapterId" element={<ViewChapter />} /> 
-            <Route path=":id/chapters/:chapterId" element={<ViewChapter />} /> 
+            <Route path=":id/chapters/:chapterId" element={<ViewChapter />} />         
             <Route path="chapters/topics/:id" element={<ViewTopicDetail />} />
           </Route>
 

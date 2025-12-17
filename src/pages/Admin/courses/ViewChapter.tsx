@@ -100,29 +100,26 @@ export default function ViewChapter() {
     }
   }, [chapter]);
 
-  // When opening the modal to add content, show a blank form by resetting state.
-  // This ensures the 'Add Content' button always opens an empty form instead of
-  // pre-filling with the existing chapter values.
   useEffect(() => {
   if (!isOpen) return;
   // Reset form fields to defaults/empty when modal opens
-  setContentDraft('');
-  setTitle('');
-  setSlug('');
-  setDescription('');
-  setContentType('html');
-  setContentUrl('');
-  setVideoDuration(undefined);
-  setPosition(undefined);
-  setIsPublished(false);
-  setIsFree(true);
-  // Get user_id from localStorage and set it
-  const storedUserId = localStorage.getItem('user_id');
-  setUserId(storedUserId ? Number(storedUserId) : undefined);
-  setMetaData('');
-  setFileUpload(null);
-  setErrors({});
-  }, [isOpen]);
+    setContentDraft('');
+    setTitle('');
+    setSlug('');
+    setDescription('');
+    setContentType('html');
+    setContentUrl('');
+    setVideoDuration(undefined);
+    setPosition(undefined);
+    setIsPublished(false);
+    setIsFree(true);
+    // Get user_id from localStorage and set it
+    const storedUserId = localStorage.getItem('user_id');
+    setUserId(storedUserId ? Number(storedUserId) : undefined);
+    setMetaData('');
+    setFileUpload(null);
+    setErrors({});
+    }, [isOpen]);
 
   // Yup validation schema for chapter modal
   const chapterSchema = Yup.object().shape({

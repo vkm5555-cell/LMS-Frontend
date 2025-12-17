@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { decryptText } from '../../../utils/encryption';
 import PageMeta from '../../../components/common/PageMeta';
 import PageBreadcrumb from '../../../components/common/PageBreadCrumb';
 import { toSrc, tryAuthFetchAndSet } from '../../../utils/videoUtils';
 import Discussions from '../../../components/courses/chapter/Discussions';
+import Transcript from '../../../components/courses/chapter/Transcript';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -16,8 +18,11 @@ export default function ViewTopicDetail() {
   const [activeTab, setActiveTab] = useState<'transcript' | 'content' | 'detail'>('transcript');
   const [videoError, setVideoError] = useState<string | null>(null);
   const [attemptedAuthFetch, setAttemptedAuthFetch] = useState(false);
+  const [transcriptLoading, setTranscriptLoading] = useState(false);
 
   const { id } = useParams();
+  const location = useLocation();
+  const [courseIdFromUrl, setCourseIdFromUrl] = useState<string | number | null>(null);
   const [error, setError] = useState("");
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -48,11 +53,35 @@ export default function ViewTopicDetail() {
     fetchTopic();
   }, [id]);
 
-  // Demo transcript
-  const transcript1 = [
-    { start: 0, end: 12, text: 'Intro' },
-    { start: 12, end: 45, text: 'Details' },
-  ];
+  useEffect(() => {
+    // Read courseId from URL. Prefer encrypted `data` param (if VITE_ENCRYPTION_KEY is set),
+    // otherwise fall back to plain `courseId` query param.
+    let mounted = true;
+    (async () => {
+      try {
+        const params = new URLSearchParams(location.search);
+        const dataParam = params.get('data');
+        const plainCourse = params.get('courseId');
+        const encKey = import.meta.env.VITE_ENCRYPTION_KEY as string | undefined;
+        if (dataParam && encKey) {
+          try {
+            const decoded = decodeURIComponent(dataParam);
+            const decrypted = await decryptText(decoded, encKey);
+            const parsed = JSON.parse(decrypted);
+            if (mounted) setCourseIdFromUrl(parsed?.courseId ?? null);
+            return;
+          } catch (err) {
+            // Decrypt failed, fall back to plain course param
+            console.error('Failed to decrypt data param', err);
+          }
+        }
+        if (plainCourse && mounted) setCourseIdFromUrl(plainCourse);
+      } catch (err) {
+        console.error('Error parsing URL params', err);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [location.search]);
 
   const onTimeUpdate = () => {
     if (!videoRef.current) return;
@@ -76,7 +105,7 @@ export default function ViewTopicDetail() {
     if (!u || attemptedAuthFetch) return;
     await tryAuthFetchAndSet(src, videoRef, setAttemptedAuthFetch, setVideoError);
   };
-
+  console.log('courseIdFromUrl', courseIdFromUrl);
   return (
     <>
       <PageMeta title={result?.title ?? 'View Topic'} description={result?.description} />
@@ -103,6 +132,12 @@ export default function ViewTopicDetail() {
                         >
                           <source src={toSrc(result?.content_url ?? result?.file_url)} type="video/mp4" />
                         </video>
+                        {/* Transcript loading overlay on top of video */}
+                        {transcriptLoading && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                            <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin" />
+                          </div>
+                        )}
 
                         {videoError && (
                           <div className="mt-3 text-sm text-red-500">{videoError}</div>
@@ -157,20 +192,17 @@ export default function ViewTopicDetail() {
 
               <div className="p-4 text-sm">
                 {activeTab === 'transcript' && (
-                  <div className="space-y-3">
-                    <div className="text-xs text-gray-500 mb-2">Video Transcript</div>
-                    <div className="h-[420px] overflow-y-auto bg-white border rounded p-3 text-sm space-y-3">
-                      {transcript1.map((t, idx) => (
-                        <div key={idx} className={`p-2 rounded ${currentTime >= t.start && currentTime < t.end ? 'bg-indigo-50 border-l-4 border-indigo-600' : ''}`}>
-                          <div className="flex items-center justify-between">
-                            <div className="text-xs text-gray-600">{new Date(t.start * 1000).toISOString().substr(14, 5)}</div>
-                            <button onClick={() => seekTo(t.start)} className="text-xs text-indigo-600 hover:underline">Play from here</button>
-                          </div>
-                          <div className="mt-1 text-gray-800">{t.text}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <Transcript
+                    transcript={null}
+                    autoGenerate={true}
+                    courseId={courseIdFromUrl ?? null}
+                    chapterId={id ?? result?.chapter_id ?? null}
+                    contentId={result?.id ?? null}
+                    videoUrl={result?.content_url ?? result?.file_url }
+                    onLoadingChange={setTranscriptLoading}
+                    currentTime={currentTime}
+                    onSeek={seekTo}
+                  />
                 )}
 
                 {activeTab === 'content' && (

@@ -172,40 +172,38 @@ export default function LearnChapter() {
             <div className="border rounded-xl shadow-sm bg-white sticky top-4 overflow-hidden">
 
                 {/* TABS */}
-        <div className="flex border-b bg-gray-50">
-        <button
-          className={`flex-1 px-4 py-3 text-sm text-center transition ${
-          activeTab === 'transcript'
-            ? 'font-semibold border-b-2 border-indigo-600 bg-white'
-            : 'text-gray-600 hover:bg-gray-100'
-          }`}
-          onClick={() => setActiveTab('transcript')}
-        >
-          Transcript
-        </button>
-
-        <button
-          className={`flex-1 px-4 py-3 text-sm text-center transition ${
-          activeTab === 'content'
-            ? 'font-semibold border-b-2 border-indigo-600 bg-white'
-            : 'text-gray-600 hover:bg-gray-100'
-          }`}
-          onClick={() => setActiveTab('content')}
-        >
-          Content
-        </button>
-
-        <button
-          className={`flex-1 px-4 py-3 text-sm text-center transition ${
-          activeTab === 'detail'
-            ? 'font-semibold border-b-2 border-indigo-600 bg-white'
-            : 'text-gray-600 hover:bg-gray-100'
-          }`}
-          onClick={() => setActiveTab('detail')}
-        >
-          Detail
-        </button>
-        </div>
+                <div className="flex border-b bg-gray-50">
+                  <button
+                    className={`flex-1 px-4 py-3 text-sm text-center transition ${
+                    activeTab === 'transcript'
+                      ? 'font-semibold border-b-2 border-indigo-600 bg-white'
+                      : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                    onClick={() => setActiveTab('transcript')}
+                  >
+                    Transcript
+                  </button>
+                  <button
+                    className={`flex-1 px-4 py-3 text-sm text-center transition ${
+                    activeTab === 'content'
+                      ? 'font-semibold border-b-2 border-indigo-600 bg-white'
+                      : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                    onClick={() => setActiveTab('content')}
+                  >
+                    Content
+                  </button>
+                  <button
+                    className={`flex-1 px-4 py-3 text-sm text-center transition ${
+                    activeTab === 'detail'
+                      ? 'font-semibold border-b-2 border-indigo-600 bg-white'
+                      : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                    onClick={() => setActiveTab('detail')}
+                  >
+                    Detail
+                  </button>
+                </div>
 
                 {/* TAB CONTENT AREA */}
                 <div className="p-4 text-sm">
@@ -229,29 +227,29 @@ export default function LearnChapter() {
                 {activeTab === 'content' && (
                     <div className="space-y-4">
 
-                    {/* PROGRESS BOX */}
-                    <div className="border rounded-lg p-3 bg-gray-50">
-                        <div className="text-xs text-gray-500 mb-1">Progress</div>
+                      {/* PROGRESS BOX */}
+                      <div className="border rounded-lg p-3 bg-gray-50">
+                          <div className="text-xs text-gray-500 mb-1">Progress</div>
 
-                        <div className="w-full bg-gray-200 h-2 rounded">
-                        <div
-                            className="bg-indigo-600 h-2 rounded"
-                            style={{ width: `${progress}%` }}
-                        />
-                        </div>
+                          <div className="w-full bg-gray-200 h-2 rounded">
+                          <div
+                              className="bg-indigo-600 h-2 rounded"
+                              style={{ width: `${progress}%` }}
+                          />
+                          </div>
 
-                        <div className="text-xs mt-2 text-gray-600">
-                        {progress}% watched
-                        </div>
-                    </div>
+                          <div className="text-xs mt-2 text-gray-600">
+                          {progress}% watched
+                          </div>
+                      </div>
 
-                    {/* BACK BUTTON */}
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="w-full px-4 py-2 border rounded-lg hover:bg-gray-50 transition"
-                    >
-                        Back to Chapters
-                    </button>
+                      {/* BACK BUTTON */}
+                      <button
+                          onClick={() => navigate(-1)}
+                          className="w-full px-4 py-2 border rounded-lg hover:bg-gray-50 transition"
+                      >
+                          Back to Chapters
+                      </button>
                     </div>
                 )}
 
