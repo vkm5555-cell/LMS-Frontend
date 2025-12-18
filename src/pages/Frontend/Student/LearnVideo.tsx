@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { Modal } from '../../../components/ui/modal';
+import QuickCheck from '../../../components/courses/chapter/QuickCheck';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageMeta from '../../../components/common/PageMeta';
 import Navbar from '../../../components/common/frontend/Navbar';
@@ -15,6 +17,9 @@ export default function LearnVideo() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<number>(0);
+  const [popupOpen, setPopupOpen] = useState(false);
+  const [nextPopupAt, setNextPopupAt] = useState<number>(180);
+  const wasPlayingRef = useRef(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -74,6 +79,22 @@ export default function LearnVideo() {
     if (!v) return;
     const pct = v.duration ? (v.currentTime / v.duration) * 100 : 0;
     setProgress(Math.min(100, Math.round(pct)));
+
+    // Periodic popup trigger
+    if (typeof nextPopupAt === 'number' && v.currentTime >= nextPopupAt) {
+      const next = Math.ceil((v.currentTime + 0.001) / 120) * 120;
+      setNextPopupAt(next);
+      try { wasPlayingRef.current = !v.paused; } catch { wasPlayingRef.current = false; }
+      try { v.pause(); } catch {}
+      setPopupOpen(true);
+    }
+  };
+
+  const closePopup = () => {
+    setPopupOpen(false);
+    if (videoRef.current && wasPlayingRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
   };
 
   return (
@@ -99,6 +120,9 @@ export default function LearnVideo() {
                         onTimeUpdate={onTimeUpdate}
                         className="w-full bg-black rounded"
                       />
+                        <Modal isOpen={popupOpen} onClose={closePopup} className="max-w-md p-6">
+                          <QuickCheck onClose={closePopup} />
+                        </Modal>
                       <div className="mt-2 text-sm text-gray-600">{progress}% watched</div>
                     </div>
                   ) : ((content.type || content.content_type) ?? '').toLowerCase().includes('html') ? (

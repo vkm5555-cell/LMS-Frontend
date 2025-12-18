@@ -603,7 +603,7 @@ function HtmlContentViewer({ it }: { it: any }) {
                                               <div className="flex-shrink-0 self-center">                                                
                                                {it?.content_type === 'video' ? (  
                                                 <button
-                                                  onClick={() => navigate(`/student-Dashboard/learn/${it.id}`)}
+                                                  onClick={() => navigate(`/student-Dashboard/learn/${it.id}/${it.chapter_id}/${it.course_id}`)}
                                                   className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700"
                                                 >
                                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

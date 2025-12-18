@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Modal } from '../../../components/ui/modal';
+import QuickCheck from '../../../components/courses/chapter/QuickCheck';
 import PageMeta from '../../../components/common/PageMeta';
 import PageBreadcrumb from '../../../components/common/PageBreadCrumb';
 import Navbar from '../../../components/common/frontend/Navbar';
 import FrontFooter from '../../../components/common/frontend/FrontFooter';
 import { toSrc, tryAuthFetchAndSet } from '../../../utils/videoUtils';
 import Discussions from '../../../components/courses/chapter/Discussions';
-import Transcript from '../../../components/courses/chapter/Transcript';
+import StudentTranscript from '../../../components/courses/chapter/StudentTranscript';
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 export default function LearnChapter() {
@@ -20,11 +22,17 @@ export default function LearnChapter() {
   const [videoError, setVideoError] = useState<string | null>(null);
   const [attemptedAuthFetch, setAttemptedAuthFetch] = useState(false);
   const [transcriptLoading, setTranscriptLoading] = useState(false);
+  // popup modal state for periodic reminders
+  const [popupOpen, setPopupOpen] = useState(false);
+  const [nextPopupAt, setNextPopupAt] = useState<number>(180); // seconds
+  const wasPlayingRef = useRef(false);
 
   // Transcript state
   // transcript is handled by the Transcript component when autoGenerate=true
 
   const { id } = useParams();
+  const { chapterId } = useParams();
+  const { courseId } = useParams();
   const [error, setError] = useState("");
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -84,6 +92,19 @@ export default function LearnChapter() {
       setProgress(Math.floor((current / total) * 100));
       setCurrentTime(current);
     }
+
+    // Periodic popup: trigger when currentTime crosses nextPopupAt
+    if (typeof nextPopupAt === 'number' && current >= nextPopupAt) {
+      // compute the next threshold (avoid multiple immediate triggers)
+      const next = Math.ceil((current + 0.001) / 180) * 180;
+      setNextPopupAt(next);
+      // open popup and pause video
+      if (videoRef.current) {
+        try { wasPlayingRef.current = !videoRef.current.paused; } catch { wasPlayingRef.current = false; }
+        try { videoRef.current.pause(); } catch {}
+      }
+      setPopupOpen(true);
+    }
   };
 
   // Dummy transcript data (start in seconds)
@@ -101,6 +122,14 @@ export default function LearnChapter() {
     setVideoError(src ? `Failed to load video: ${src}` : 'Failed to load video (no source)');
     if (!u || attemptedAuthFetch) return;
     await tryAuthFetchAndSet(src, videoRef, setAttemptedAuthFetch, setVideoError);
+  };
+
+  const closePopup = () => {
+    setPopupOpen(false);
+    // resume playback if it was playing before popup
+    if (videoRef.current && wasPlayingRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
   };
   return (
     <>
@@ -129,6 +158,11 @@ export default function LearnChapter() {
                     >
                       <source src={toSrc(result?.content_url ?? result?.file_url)} type="video/mp4" />
                     </video>
+
+                    {/* periodic popup modal every 180s of playback */}
+                    <Modal isOpen={popupOpen} onClose={closePopup} className="max-w-md p-6">
+                      <QuickCheck onClose={closePopup} />
+                    </Modal>
 
                     {/* Transcript loading overlay on top of video */}
                     {transcriptLoading && (
@@ -210,12 +244,12 @@ export default function LearnChapter() {
 
                 {/* TRANSCRIPT TAB */}
                 {activeTab === 'transcript' && (
-                  <Transcript
+                  <StudentTranscript
                     transcript={null}
                     autoGenerate={true}
-                    courseId={result?.course_id ?? null}
-                    chapterId={id ?? result?.chapter_id ?? null}
-                    contentId={result?.id ?? null}
+                    courseId={courseId ?? null}
+                    chapterId={chapterId ?? null}
+                    contentId={id ?? null}
                     videoUrl={result?.content_url ?? result?.file_url ?? content.file_url}
                     onLoadingChange={setTranscriptLoading}
                     currentTime={currentTime}

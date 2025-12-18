@@ -96,16 +96,56 @@ const Transcript: React.FC<Props> = ({
           videoUrl: normalizedVideo,
         };
 
-        const res = await fetch(`${apiBase}/transcript/generate`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify(payload),
-        });
+        // First, try to GET the transcript (some backends expose a GET endpoint accepting query params)
+        let res = null as Response | null;
+        let data: any = null;
+        try {
+          const params = new URLSearchParams();
+          if (courseId != null) params.set('courseId', String(courseId));
+          if (chapterId != null) params.set('chapterId', String(chapterId));
+          if (contentId != null) params.set('contentId', String(contentId));
+       
+          const getUrl = `${apiBase}/transcript/generate${params.toString() ? `?${params.toString()}` : ''}`;
+          res = await fetch(getUrl, {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          });
 
-        const data = await res.json();
+          if (res.ok) {
+            data = await res.json();
+          } else {
+            // fallback to POST when GET isn't supported or returns an error
+            const postRes = await fetch(`${apiBase}/transcript/generate`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+              body: JSON.stringify(payload),
+            });
+            res = postRes;
+            data = await postRes.json();
+          }
+        } catch (err) {
+          // If network or unexpected error, attempt POST as last resort
+          try {
+            const postRes = await fetch(`${apiBase}/transcript/generate`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+              body: JSON.stringify(payload),
+            });
+            res = postRes;
+            data = await postRes.json();
+          } catch (err2) {
+            throw err2;
+          }
+        }
         if (!res.ok || data.success === false) {
           setError(data.message || "Failed to generate transcript");
           setLoading(false);

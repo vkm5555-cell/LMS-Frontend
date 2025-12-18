@@ -23,6 +23,7 @@ export default function ViewTopicDetail() {
   const { id } = useParams();
   const location = useLocation();
   const [courseIdFromUrl, setCourseIdFromUrl] = useState<string | number | null>(null);
+  const [chapterIdFromUrl, setChapterIdFromUrl] = useState<string | number | null>(null);
   const [error, setError] = useState("");
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -60,22 +61,27 @@ export default function ViewTopicDetail() {
     (async () => {
       try {
         const params = new URLSearchParams(location.search);
-        const dataParam = params.get('data');
-        const plainCourse = params.get('courseId');
+  const dataParam = params.get('data');
+  const plainCourse = params.get('courseId');
+  const plainChapter = params.get('chapterId');
         const encKey = import.meta.env.VITE_ENCRYPTION_KEY as string | undefined;
         if (dataParam && encKey) {
           try {
             const decoded = decodeURIComponent(dataParam);
             const decrypted = await decryptText(decoded, encKey);
             const parsed = JSON.parse(decrypted);
-            if (mounted) setCourseIdFromUrl(parsed?.courseId ?? null);
+            if (mounted) {
+              setCourseIdFromUrl(parsed?.courseId ?? null);
+              setChapterIdFromUrl(parsed?.chapterId ?? null);
+            }
             return;
           } catch (err) {
             // Decrypt failed, fall back to plain course param
             console.error('Failed to decrypt data param', err);
           }
         }
-        if (plainCourse && mounted) setCourseIdFromUrl(plainCourse);
+  if (plainCourse && mounted) setCourseIdFromUrl(plainCourse);
+  if (plainChapter && mounted) setChapterIdFromUrl(plainChapter);
       } catch (err) {
         console.error('Error parsing URL params', err);
       }
@@ -105,7 +111,6 @@ export default function ViewTopicDetail() {
     if (!u || attemptedAuthFetch) return;
     await tryAuthFetchAndSet(src, videoRef, setAttemptedAuthFetch, setVideoError);
   };
-  console.log('courseIdFromUrl', courseIdFromUrl);
   return (
     <>
       <PageMeta title={result?.title ?? 'View Topic'} description={result?.description} />
@@ -196,7 +201,7 @@ export default function ViewTopicDetail() {
                     transcript={null}
                     autoGenerate={true}
                     courseId={courseIdFromUrl ?? null}
-                    chapterId={id ?? result?.chapter_id ?? null}
+                    chapterId={chapterIdFromUrl ?? id ?? result?.chapter_id ?? null}
                     contentId={result?.id ?? null}
                     videoUrl={result?.content_url ?? result?.file_url }
                     onLoadingChange={setTranscriptLoading}

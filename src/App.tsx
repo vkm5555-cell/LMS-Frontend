@@ -105,7 +105,7 @@ export default function App() {
           <Route index element={<StudentDashboard />} />
           <Route path="course/:id" element={<CourseDetail />} />
           <Route path="batches/:id" element={<BatchList />} /> 
-          <Route path="learn/:id" element={<LearnChapter />} />
+          <Route path="learn/:id/:chapterId/:courseId" element={<LearnChapter />} />
         </Route>
 
 
