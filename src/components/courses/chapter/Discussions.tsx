@@ -140,7 +140,6 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
     }
   }
 
-console.log('comments', items);
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 mt-10 mb-16">
 

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Modal } from '../../../components/ui/modal';
 import QuickCheck from '../../../components/courses/chapter/QuickCheck';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import PageMeta from '../../../components/common/PageMeta';
 import Navbar from '../../../components/common/frontend/Navbar';
 import FrontFooter from '../../../components/common/frontend/FrontFooter';
@@ -9,8 +9,9 @@ import ComponentCard from '../../../components/common/ComponentCard';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
-export default function LearnVideo() {
-  const { id } = useParams<{ id: string }>();
+export default function LearnVideo() { 
+  const { id, chapterId: routeChapterId, courseId: routeCourseId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [content, setContent] = useState<any | null>(null);
@@ -96,7 +97,7 @@ export default function LearnVideo() {
       videoRef.current.play().catch(() => {});
     }
   };
-
+ 
   return (
     <>
       <PageMeta title={content?.title ?? 'Learn Video'} description={content?.summary ?? ''} />
@@ -120,8 +121,49 @@ export default function LearnVideo() {
                         onTimeUpdate={onTimeUpdate}
                         className="w-full bg-black rounded"
                       />
-                        <Modal isOpen={popupOpen} onClose={closePopup} className="max-w-md p-6">
-                          <QuickCheck onClose={closePopup} />
+                        <Modal isOpen={popupOpen} onClose={closePopup} className="max-w-md p-6" showCloseButton={false}>
+                          {
+                            (() => {
+                              const q = new URLSearchParams(location.search);
+                              const urlUserId = q.get('user_id') ?? q.get('userId') ?? null;
+                              const urlChapterId = q.get('chapterId') ?? q.get('chapter_id') ?? null;
+                              const urlCourseId = q.get('courseId') ?? q.get('course_id') ?? null;
+                              const currentUserId = urlUserId ?? localStorage.getItem('user_id') ?? null;
+                              const chapterId = routeChapterId ?? urlChapterId;
+                              const courseId = routeCourseId ?? urlCourseId;
+
+                              // report handler
+                              const handleOpenReport = async (payload: { user_id?: string | number | null; content_id?: string | number | null; video_time?: number; chapter_id?: string | number | null; course_id?: string | number | null }) => {
+                                try {
+                                  const token = localStorage.getItem('token');
+                                  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+                                  if (token) headers.Authorization = `Bearer ${token}`;
+                                  const endpoint = (import.meta as any).env?.VITE_API_BASE_URL
+                                    ? `${(import.meta as any).env.VITE_API_BASE_URL}/quick-quiz/get`
+                                    : '/quick-quiz/get';
+                                  await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload) });
+                                } catch (e) {
+                                  // ignore
+                                }
+                              };
+
+                              return (
+                                <QuickCheck
+                                  header="Quick check"
+                                  message="You've been watching for a while — take a short break or continue when ready."
+                                  onClose={closePopup}
+                                  currentTime={videoRef.current?.currentTime}
+                                  userId={currentUserId}
+                                  contentId={content?.id ?? id ?? null}
+                                  chapterId={chapterId}
+                                  courseId={courseId}
+                                  autoReport={true}
+                                  onOpenReport={handleOpenReport}
+                                  fetchQuiz={true}
+                                />
+                              );
+                            })()
+                          }
                         </Modal>
                       <div className="mt-2 text-sm text-gray-600">{progress}% watched</div>
                     </div>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Modal } from '../../../components/ui/modal';
 import QuickCheck from '../../../components/courses/chapter/QuickCheck';
 import PageMeta from '../../../components/common/PageMeta';
@@ -30,9 +30,11 @@ export default function LearnChapter() {
   // Transcript state
   // transcript is handled by the Transcript component when autoGenerate=true
 
-  const { id } = useParams();
-  const { chapterId } = useParams();
-  const { courseId } = useParams();
+  const { id, chapterId: routeChapterId, courseId: routeCourseId } = useParams();
+  const location = useLocation();
+  // keep backward-compatible local names used across this file
+  const chapterId = routeChapterId ?? null;
+  const courseId = routeCourseId ?? null;
   const [error, setError] = useState("");
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -160,8 +162,34 @@ export default function LearnChapter() {
                     </video>
 
                     {/* periodic popup modal every 180s of playback */}
-                    <Modal isOpen={popupOpen} onClose={closePopup} className="max-w-md p-6">
-                      <QuickCheck onClose={closePopup} />
+                    <Modal isOpen={popupOpen} onClose={closePopup} className="max-w-md p-6" showCloseButton={false}>
+                      {
+                        (() => {
+                          const q = new URLSearchParams(location.search);
+                          const urlUserId = q.get('user_id') ?? q.get('userId') ?? null;
+                          const urlChapterId = q.get('chapterId') ?? q.get('chapter_id') ?? null;
+                          const urlCourseId = q.get('courseId') ?? q.get('course_id') ?? null;
+                          const currentUserId = urlUserId ?? localStorage.getItem('user_id') ?? null;
+                          const chapterId = routeChapterId ?? urlChapterId;
+                          const courseId = routeCourseId ?? urlCourseId;  
+
+                            return (
+                            <QuickCheck
+                              header="Quick check"
+                              message="You've been watching for a while — take a short break or continue when ready."
+                              onClose={closePopup}
+                              currentTime={currentTime}
+                              userId={currentUserId}
+                              contentId={result?.id ?? id ?? null}
+                              chapterId={chapterId}
+                              courseId={courseId}
+                              autoReport={true}
+                              //onOpenReport={handleOpenReport}
+                              fetchQuiz={true}
+                            />
+                          );
+                        })()
+                      }
                     </Modal>
 
                     {/* Transcript loading overlay on top of video */}
