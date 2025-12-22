@@ -121,7 +121,7 @@ export default function LearnVideo() {
                         onTimeUpdate={onTimeUpdate}
                         className="w-full bg-black rounded"
                       />
-                        <Modal isOpen={popupOpen} onClose={closePopup} className="max-w-md p-6" showCloseButton={false}>
+                        <Modal isOpen={popupOpen} onClose={closePopup} className="max-w-md p-6" showCloseButton={false} disableBackdropClose={true} disableEscapeKeyClose={true}>
                           {
                             (() => {
                               const q = new URLSearchParams(location.search);
@@ -160,6 +160,7 @@ export default function LearnVideo() {
                                   autoReport={true}
                                   onOpenReport={handleOpenReport}
                                   fetchQuiz={true}
+                                  onSubmit={(res) => { if (res.success) closePopup(); }}
                                 />
                               );
                             })()

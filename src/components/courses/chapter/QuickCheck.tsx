@@ -203,20 +203,32 @@ const QuickCheck: React.FC<QuickCheckProps> = ({
                 setSubmitSuccess(null);
                 try {
                   const baseUrl = (import.meta as any).env?.VITE_API_BASE_URL || '';
-                  const endpoint = submitEndpoint ?? `${baseUrl}/student/quickquiz/answer`;
+                  const endpoint = submitEndpoint ?? `${baseUrl}/quick-quiz/submit-answer`;
                   const token = localStorage.getItem('token');
                   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
                   if (token) headers.Authorization = `Bearer ${token}`;
 
                   const body: any = {
                     quiz_id: quiz.id ?? quiz.quiz_id ?? null,
+                    // backend expects quick_quiz_id (snake_case); include it from available fields
+                    quick_quiz_id: quiz.quick_quiz_id ?? quiz.id ?? quiz.quiz_id ?? null,
                     content_id: contentId ?? null,
                     chapter_id: chapterId ?? null,
                     course_id: courseId ?? null,
                     video_time: currentTime ? Math.round(currentTime) : 0,
                   };
-                  if (selected instanceof Set) body.answer = Array.from(selected);
-                  else body.answer = selected;
+                  // include student identifier if available
+                  const studentId = localStorage.getItem('student_id') ?? localStorage.getItem('user_id') ?? localStorage.getItem('id') ?? null;
+                  if (studentId) body.student_id = studentId;
+
+                  if (selected instanceof Set) {
+                    const arr = Array.from(selected);
+                    body.answer = arr;
+                    body.selected_option_ids = arr;
+                  } else {
+                    body.answer = selected;
+                    body.selected_option_id = selected;
+                  }
 
                   const res = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(body) });
                   if (!res.ok) {

@@ -162,7 +162,7 @@ export default function LearnChapter() {
                     </video>
 
                     {/* periodic popup modal every 180s of playback */}
-                    <Modal isOpen={popupOpen} onClose={closePopup} className="max-w-md p-6" showCloseButton={false}>
+                    <Modal isOpen={popupOpen} onClose={closePopup} className="max-w-md p-6" showCloseButton={false} disableBackdropClose={true} disableEscapeKeyClose={true}>
                       {
                         (() => {
                           const q = new URLSearchParams(location.search);
@@ -186,6 +186,9 @@ export default function LearnChapter() {
                               autoReport={true}
                               //onOpenReport={handleOpenReport}
                               fetchQuiz={true}
+                              onSubmit={(res) => {
+                                if (res.success) closePopup();
+                              }}
                             />
                           );
                         })()

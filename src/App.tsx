@@ -78,7 +78,8 @@ import EditAssignmentPage from "./pages/Admin/assignment/EditAssignmentPage";
 
 //Admin Course, content and chapter
 import ViewTopicDetail from "./pages/Admin/courses/ViewTopicDetail";
- 
+// Quick Quiz Create Page
+import QuickQuizCreate from "./pages/Admin/courses/QuickQuizCreate"; 
 
 export default function App() {
   // Auto-logout handler component
@@ -177,6 +178,15 @@ export default function App() {
             <Route path=":id/add-chapter" element={<AddCourseChapter />} />
             <Route path=":id/chapters/:chapterId" element={<ViewChapter />} />         
             <Route path="chapters/topics/:id" element={<ViewTopicDetail />} />
+          </Route>
+
+          
+
+          <Route
+            path="/quick-quiz"
+            element={<ProtectedRoute allowedRoles={["Admin", "Teacher"]} />}
+          >
+            <Route path="add" element={<QuickQuizCreate />} />
           </Route>
 
           <Route
