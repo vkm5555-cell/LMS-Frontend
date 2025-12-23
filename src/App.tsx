@@ -78,8 +78,10 @@ import EditAssignmentPage from "./pages/Admin/assignment/EditAssignmentPage";
 
 //Admin Course, content and chapter
 import ViewTopicDetail from "./pages/Admin/courses/ViewTopicDetail";
-// Quick Quiz Create Page
-import QuickQuizCreate from "./pages/Admin/courses/QuickQuizCreate"; 
+// Quick Quiz section
+import QuickQuizCreate from "./pages/Admin/courses/QuickQuizCreate";  
+import QuickQuizList from "./pages/Admin/courses/QuickQuizList";
+import QuickQuizEdit from "./pages/Admin/courses/QuickQuizEdit";
 
 export default function App() {
   // Auto-logout handler component
@@ -186,7 +188,9 @@ export default function App() {
             path="/quick-quiz"
             element={<ProtectedRoute allowedRoles={["Admin", "Teacher"]} />}
           >
-            <Route path="add" element={<QuickQuizCreate />} />
+            <Route path="add" element={<QuickQuizCreate />} /> 
+            <Route path="list" element={<QuickQuizList />} />
+            <Route path="edit/:id" element={<QuickQuizEdit />} />
           </Route>
 
           <Route
