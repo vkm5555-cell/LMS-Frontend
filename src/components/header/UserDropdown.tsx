@@ -2,6 +2,7 @@ import { useState } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { useNavigate  } from "react-router";
+import { ToastContainer } from 'react-toastify';
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -55,7 +56,7 @@ export default function UserDropdown() {
           />
         </svg>
       </button>
-
+       <ToastContainer className="!z-[9999]" position="top-right" autoClose={4000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
       <Dropdown
         isOpen={isOpen}
         onClose={closeDropdown}

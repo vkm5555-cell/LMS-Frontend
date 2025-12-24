@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 interface Option {
   id: string;
@@ -21,23 +21,21 @@ interface InitialValues {
 
 interface Props {
   initial?: InitialValues;
-  editId?: string | number; // if present, component will fetch item and use PUT to save
   submitEndpoint?: string; // if omitted, defaults to /quick-quiz/add (POST)
   method?: 'POST' | 'PUT' | 'PATCH';
   submitLabel?: string;
-  onCreated?: (resp: any) => void; // called on successful submit
-  onSaved?: (resp: any) => void; // alias for edit flows
+  onCreated?: (resp: any) => void; // called on successful create
   onError?: (err: any) => void;
-  // optional callback to run after a successful submit instead of the default clear
 }
 
 const defaultEndpoint = (import.meta as any).env?.VITE_API_BASE_URL
   ? `${(import.meta as any).env.VITE_API_BASE_URL}/quick-quiz/add`
   : '/quick-quiz/add';
 
-export default function QuickQuizForm({ initial, editId, submitEndpoint, method = 'POST', submitLabel, onCreated, onSaved, onError }: Props) {
+export default function QuickQuizCreateForm({ initial, submitEndpoint, method = 'POST', submitLabel, onCreated, onError }: Props) {
   const apiBase = (import.meta as any).env?.VITE_API_BASE_URL || '';
   const endpoint = submitEndpoint ?? defaultEndpoint;
+  const navigate = useNavigate();
 
   const [courseId, setCourseId] = useState<string>(String(initial?.courseId ?? ''));
   const [chapterId, setChapterId] = useState<string>(String(initial?.chapterId ?? ''));
@@ -57,7 +55,7 @@ export default function QuickQuizForm({ initial, editId, submitEndpoint, method 
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<any | null>(null);
+  // no local success state; we use toasts for feedback
 
   const [courses, setCourses] = useState<any[]>([]);
   const [chapters, setChapters] = useState<any[]>([]);
@@ -65,33 +63,7 @@ export default function QuickQuizForm({ initial, editId, submitEndpoint, method 
   const [chapterLoading, setChapterLoading] = useState(false);
   const [contentLoading, setContentLoading] = useState(false);
 
-  // If editId is provided, fetch the existing quiz and populate fields
-  useEffect(() => {
-    if (!editId) return;
-    (async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${apiBase}/quick-quiz/single/${editId}`, { headers: { Authorization: token ? `Bearer ${token}` : '' } });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json?.message || 'Failed to load');
-        const q = json?.data ?? json;
-        setCourseId(String(q.course_id ?? q.course?.id ?? q.courseId ?? ''));
-        setChapterId(String(q.chapter_id ?? q.chapter?.id ?? q.chapterId ?? ''));
-        setContentId(String(q.content_id ?? q.content?.id ?? q.contentId ?? ''));
-        setQuestion(q.question ?? '');
-        setQuestionType((q.question_type ?? q.questionType ?? 'true_false') as 'true_false' | 'mcq');
-        setShowAtSeconds(Number(q.show_at_seconds ?? q.showAtSeconds ?? 0));
-        setOptions((q.options || []).map((o: any) => ({ id: String(o.id ?? (crypto?.randomUUID ? crypto.randomUUID() : Date.now())), text: o.text ?? o.title ?? '', isCorrect: Boolean(o.is_correct ?? o.isCorrect) })));
-      } catch (err: any) {
-        const message = err?.message ?? 'Failed to load quick quiz for edit';
-        console.error(message, err);
-        toast.error(message);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [editId]);
+  // Create-only form: no edit prefetch needed
 
    useEffect(() => {
     async function fetchCourses() {
@@ -194,8 +166,7 @@ export default function QuickQuizForm({ initial, editId, submitEndpoint, method 
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
+  setError(null);
 
     // basic validation
     if (!courseId || !chapterId || !contentId) {
@@ -238,22 +209,19 @@ export default function QuickQuizForm({ initial, editId, submitEndpoint, method 
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers.Authorization = `Bearer ${token}`;
 
-      let url = endpoint;
-      let httpMethod = method ?? 'POST';
-      if (editId) {
-        url = submitEndpoint ?? `${apiBase}/quick-quiz/edit/${editId}`;
-        httpMethod = method === 'POST' ? 'PUT' : method;
-      }
+      const url = endpoint;
+      const httpMethod = method ?? 'POST';
 
       const res = await fetch(url, { method: httpMethod, headers, body: JSON.stringify(payload) });
       const json = await res.json();
       if (!res.ok) {
         throw new Error(json?.message || JSON.stringify(json) || `Server ${res.status}`);
       }
-      setSuccess(json);
-      toast.success('The quiz was updated successfully');
-      if (!editId && httpMethod === 'POST' && onCreated) onCreated(json);
-      if (editId && (httpMethod === 'PUT' || httpMethod === 'PATCH') && onSaved) onSaved(json);
+        // success: created
+        toast.success('Quiz created successfully');
+        if (onCreated) onCreated(json);
+        setTimeout(() => navigate('/quick-quiz/list'), 700);     
+      
     } catch (err: any) {
       const message = err?.message ?? 'Failed to submit';
       setError(message);
@@ -344,7 +312,7 @@ export default function QuickQuizForm({ initial, editId, submitEndpoint, method 
       </div>
 
       {error && <div className="text-sm text-red-500">{error}</div>}
-      {success && <div className="text-sm text-green-600">Saved</div>}
+  {/* success is shown via toast */}
 
   {/* ToastContainer moved to App.tsx */}
 

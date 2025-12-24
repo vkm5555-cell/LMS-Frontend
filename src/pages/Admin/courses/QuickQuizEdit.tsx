@@ -19,8 +19,8 @@ export default function QuickQuizEdit() {
             <QuickQuizForm
               editId={id}
               method="PUT"
-              submitEndpoint={id ? `${apiBase}/quick-quiz/${id}` : undefined}
-              onSaved={() => navigate('/quick-quiz')}
+              submitEndpoint={id ? `${apiBase}/quick-quiz/edit/${id}` : undefined}
+              onSaved={() => navigate('/quick-quiz/list')}
               onError={() => { /* page-level error handling can be added if needed */ }}
               submitLabel="Save Changes"
             />

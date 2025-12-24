@@ -2,7 +2,7 @@
 import PageMeta from '../../../components/common/PageMeta';
 import PageBreadcrumb from '../../../components/common/PageBreadCrumb';
 import ComponentCard from '../../../components/common/ComponentCard';
-import CreateQuickQuiz from '../../../components/courses/chapter/CreateQuickQuiz';
+import QuickQuizCreateForm from '../../../components/courses/chapter/QuickQuizCreateForm';
 
 export default function QuickQuizCreate() {
   return (
@@ -12,7 +12,7 @@ export default function QuickQuizCreate() {
         <PageBreadcrumb pageTitle="Create Quick Quiz" />
         <div className="grid grid-cols-1 gap-6">
           <ComponentCard title="New Quick Quiz">
-            <CreateQuickQuiz onCreated={(res) => { console.debug('QuickQuiz created', res); }} />
+            <QuickQuizCreateForm onCreated={(res) => { console.debug('QuickQuiz created', res); }} />
           </ComponentCard>
         </div>
       </div>

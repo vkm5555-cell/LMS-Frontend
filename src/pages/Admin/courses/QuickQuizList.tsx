@@ -15,7 +15,7 @@ export default function QuickQuizList() {
           title={
             <div className="flex items-center justify-between">
               <span>Quick Quizzes</span>
-              <button className="ml-4 px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition" onClick={() => navigate('/quick-quiz/create')}>Add Quick Quiz</button>
+              <button className="ml-4 px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition" onClick={() => navigate('/quick-quiz/add')}>Add Quick Quiz</button>
             </div>
           }
         >

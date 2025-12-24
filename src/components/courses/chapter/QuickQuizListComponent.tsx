@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import usePagination from '../../../hooks/usePagination';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 interface Props {
   apiBase?: string;
@@ -187,10 +188,11 @@ export default function QuickQuizListComponent({ apiBase = (import.meta as any).
     if (action === 'Delete') {
       if (!window.confirm('Are you sure you want to delete this quick quiz?')) return;
       try {
-        const res = await fetch(`${apiBase}/quick-quiz/${item.id}`, { method: 'DELETE', headers: { Authorization: token ? `Bearer ${token}` : '' } });
+        const res = await fetch(`${apiBase}/quick-quiz/delete/${item.id}`, { method: 'DELETE', headers: { Authorization: token ? `Bearer ${token}` : '' } });
         const data = await res.json();
         if (res.ok) {
           setItems((prev) => prev.filter((it) => it.id !== item.id));
+          toast.success('Your quiz was deleted successfully');
         } else {
           alert(data?.message || 'Failed to delete');
         }
