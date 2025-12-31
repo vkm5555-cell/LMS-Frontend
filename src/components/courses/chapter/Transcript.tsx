@@ -62,10 +62,15 @@ const Transcript: React.FC<Props> = ({
         const token = localStorage.getItem("token");
 
         // Normalize video url
-        let videoSrc: string | undefined = typeof videoUrl === "string" ? videoUrl : undefined;
-        if (videoSrc && !/^https?:\/\//i.test(videoSrc) && apiBase) {
-          const base = apiBase.replace(/\/$/, "");
-          videoSrc = `${base}/${videoSrc.replace(/^\//, "")}`;
+        let videoSrc: string | undefined =
+        typeof videoUrl === "string" ? videoUrl : undefined;
+
+        if (videoSrc) {
+           videoSrc = videoSrc.replace(/\\/g, "/");
+          if (!/^https?:\/\//i.test(videoSrc) && apiBase) {
+            //const base = apiBase.replace(/\/$/, "");
+            videoSrc = `${videoSrc.replace(/^\//, "")}`;
+          }
         }
 
         // Build body with both camelCase and snake_case ids where helpful

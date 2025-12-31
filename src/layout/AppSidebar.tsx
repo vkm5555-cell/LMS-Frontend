@@ -82,6 +82,14 @@ const navItems: NavItem[] = [
     ],
   },
   {
+    icon: <TaskIcon />,
+    name: "Quick Quiz",
+    subItems: [ 
+      { name: "Add Quiz", path: "/quick-quiz/add", roles: ["Teacher"] },
+      { name: "List Quizzes", path: "/quick-quiz/list", roles: ["Teacher"] },   
+    ],
+  },
+  {
     icon: <PageIcon />,
     name: "Meetings",
     path: "#",

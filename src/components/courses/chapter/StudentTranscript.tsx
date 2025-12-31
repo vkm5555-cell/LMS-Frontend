@@ -64,8 +64,8 @@ const Transcript: React.FC<Props> = ({
         // Normalize video url
         let videoSrc: string | undefined = typeof videoUrl === "string" ? videoUrl : undefined;
         if (videoSrc && !/^https?:\/\//i.test(videoSrc) && apiBase) {
-          const base = apiBase.replace(/\/$/, "");
-          videoSrc = `${base}/${videoSrc.replace(/^\//, "")}`;
+          //const base = apiBase.replace(/\/$/, "");
+          videoSrc = `${videoSrc.replace(/^\//, "")}`;
         }
 
         // Build body with both camelCase and snake_case ids where helpful

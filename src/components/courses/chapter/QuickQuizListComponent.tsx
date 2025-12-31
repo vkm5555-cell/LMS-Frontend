@@ -11,7 +11,7 @@ interface Props {
 
 export default function QuickQuizListComponent({ apiBase = (import.meta as any).env?.VITE_API_BASE_URL || '', listEndpoint }: Props) {
   const endpoint = listEndpoint ?? `${apiBase}/quick-quiz/list`;
-  const { page, setPage, pageSize, setPageSize, total, setTotal, totalPages, buildPaginationParams } = usePagination({ initialPage: 1, initialPageSize: 10 });
+  const { page, setPage, pageSize, total, setTotal, totalPages, buildPaginationParams } = usePagination({ initialPage: 1, initialPageSize: 10 });
 
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
