@@ -77,12 +77,12 @@ export default function LearnChapter() {
 
   // Demo chapter
   const content = {
-    id: 'demo-1',
-    title: 'Introduction to Java 8',
-    summary: 'Learn the basics of Java 8 features.',
+    id: result?.id,
+    title: result?.title || '',
+    summary: result?.description || '',
     type: 'video/mp4',
     file_url: 'http://127.0.0.1:8000/uploads/chapter_contents/Introduction_Java8.mp4',
-    duration: '5:00',
+    duration: (result?.video_duration || 0),
   };
 
   /** Auto progress update */
@@ -95,7 +95,7 @@ export default function LearnChapter() {
       setCurrentTime(current);
     }
 
-    // Periodic popup: trigger when currentTime crosses nextPopupAt
+
     if (typeof nextPopupAt === 'number' && current >= nextPopupAt) {
       // compute the next threshold (avoid multiple immediate triggers)
       const next = Math.ceil((current + 0.001) / 180) * 180;
@@ -109,14 +109,10 @@ export default function LearnChapter() {
     }
   };
 
-  // Dummy transcript data (start in seconds)
-  // demo transcript removed — Transcript component will fetch when autoGenerate=true
-
   const seekTo = (seconds: number) => {
     if (!videoRef.current) return;
     videoRef.current.currentTime = seconds;
   };
-  //console.log("Result:", result);
 
   const handleVideoError = async () => {
     const u = result?.content_url ?? result?.file_url ?? '';
@@ -211,9 +207,8 @@ export default function LearnChapter() {
                   </>
                 )}
               </div>
-
+              <h2 className="text-lg font-semibold mt-4">Quick Quiz:</h2>
               <h2 className="text-xl font-semibold mt-4">{content.title}</h2>
-
               <p className="text-sm text-gray-700 mt-2">{content.summary}</p>
 
               {/* Progress */}
