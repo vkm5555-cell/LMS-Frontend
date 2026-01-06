@@ -9,6 +9,8 @@ import FrontFooter from '../../../components/common/frontend/FrontFooter';
 import { toSrc, tryAuthFetchAndSet } from '../../../utils/videoUtils';
 import Discussions from '../../../components/courses/chapter/Discussions';
 import StudentTranscript from '../../../components/courses/chapter/StudentTranscript';
+import QuickQuizResultViewer from "../../../components/courses/chapter/QuickQuizResultViewer";
+import CollapsibleSection from "../../../components/common/CollapsibleSection";
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 export default function LearnChapter() {
@@ -27,9 +29,6 @@ export default function LearnChapter() {
   const [nextPopupAt, setNextPopupAt] = useState<number>(180); // seconds
   const wasPlayingRef = useRef(false);
 
-  // Transcript state
-  // transcript is handled by the Transcript component when autoGenerate=true
-
   const { id, chapterId: routeChapterId, courseId: routeCourseId } = useParams();
   const location = useLocation();
   // keep backward-compatible local names used across this file
@@ -38,7 +37,9 @@ export default function LearnChapter() {
   const [error, setError] = useState("");
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  // transcript state removed - using demo transcript1
+  const [showQuizResults, setShowQuizResults] = useState(false);
+  const [quizScore, setQuizScore] = useState<number | null>(null);
+  const [quizTotal, setQuizTotal] = useState<number | null>(null);
 
 
   useEffect(() => {
@@ -206,8 +207,7 @@ export default function LearnChapter() {
                     )}
                   </>
                 )}
-              </div>
-              <h2 className="text-lg font-semibold mt-4">Quick Quiz:</h2>
+              </div>              
               <h2 className="text-xl font-semibold mt-4">{content.title}</h2>
               <p className="text-sm text-gray-700 mt-2">{content.summary}</p>
 
@@ -226,6 +226,7 @@ export default function LearnChapter() {
               </div>
             </div>
           </div>
+          
 
           {/* ================= RIGHT: TABS (CONTENT / DETAIL) ================= */}
           <div className="lg:col-span-1">
@@ -343,6 +344,30 @@ export default function LearnChapter() {
 
         </div>
       </div>
+
+      <CollapsibleSection
+        title="Quick Quiz Results"
+       headerRight={
+        (quizScore !== null && quizTotal !== null) ? (
+          <span className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-full">
+            Score: {quizScore}/{quizTotal}
+          </span>
+        ) : (
+          <span className="px-2 py-1 text-xs text-gray-400">Loading…</span>
+        )
+      }
+      >
+        <QuickQuizResultViewer
+          courseId={courseId}
+          chapterId={chapterId}
+          contentId={result?.id ?? id ?? null}
+          apiBaseUrl={apiBaseUrl}
+          onScoreLoaded={(score, total) => {
+            setQuizScore(score);
+            setQuizTotal(total);
+          }}
+        />
+      </CollapsibleSection>
 
       {/* Discussions component (moved to separate file) */}
       <Discussions        
