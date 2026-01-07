@@ -74,6 +74,8 @@ import AddStudentToBatch from "./pages/Admin/batch/AddStudentToBatch";
 import CreateAssignmentPage from "./pages/Admin/assignment/CreateAssignmentPage";
 import ListAssignmentsPage from "./pages/Admin/assignment/ListAssignmentsPage";
 import EditAssignmentPage from "./pages/Admin/assignment/EditAssignmentPage";
+import ViewAssignmentPage from "./pages/Admin/assignment/ViewAssignmentPage"; 
+import AssignAssignmentPage from "./pages/Admin/assignment/AssignAssignmentPage";
 
 
 //Admin Course, content and chapter
@@ -212,8 +214,8 @@ export default function App() {
             <Route path="add" element={<CreateAssignmentPage />} /> 
             <Route path="list" element={<ListAssignmentsPage />} />
             <Route path="edit/:id" element={<EditAssignmentPage />} />
-            {/* <Route path="view/:id" element={<ViewAssignment />} />
-            <Route path="add-student/:id" element={<AddStudentToAssignment />} /> */}
+            <Route path="view/:id" element={<ViewAssignmentPage />} />
+            <Route path="add-student/:id" element={<AssignAssignmentPage />} />
           </Route>
        
 
