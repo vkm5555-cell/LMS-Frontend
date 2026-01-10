@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import * as yup from 'yup';
 
 type Option = {
   value: string | number;
@@ -40,6 +41,9 @@ const AssignAssignment: React.FC<AssignAssignmentProps> = ({ assignmentId }) => 
   const [dueDate, setDueDate] = useState('');
   const [notes, setNotes] = useState('');
 
+  /* ---------------- Validation errors ---------------- */
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   /* ---------------- Helpers ---------------- */
   const authHeaders = () => {
     const token = localStorage.getItem('token');
@@ -49,9 +53,21 @@ const AssignAssignment: React.FC<AssignAssignmentProps> = ({ assignmentId }) => 
     };
   };
 
+  const selectErrorStyles = (hasError: boolean) => ({
+    control: (provided: any) => ({
+      ...provided,
+      borderColor: hasError ? '#ef4444' : provided.borderColor,
+      boxShadow: hasError ? '0 0 0 1px rgba(239,68,68,0.15)' : provided.boxShadow,
+      '&:hover': { borderColor: hasError ? '#ef4444' : provided.borderColor },
+    }),
+  });
+
   /* ---------------- Load Assignment ---------------- */
   useEffect(() => {
-    if (!assignmentId) return;
+    if (!assignmentId) {
+      setLoading(false);
+      return;
+    }
 
     const loadAssignment = async () => {
       try {
@@ -104,7 +120,7 @@ const AssignAssignment: React.FC<AssignAssignmentProps> = ({ assignmentId }) => 
 
         setSemesters(
           (semJson.data ?? []).map((s: any) => ({
-            value: s.id,
+            value: s.code,
             label: s.name,
           }))
         );
@@ -131,10 +147,9 @@ const AssignAssignment: React.FC<AssignAssignmentProps> = ({ assignmentId }) => 
           { headers: authHeaders() }
         );
         if (!res.ok) throw new Error();
-
         const json = await res.json();
         setPrograms(
-          (json.data ?? []).map((p: any) => ({
+          (json ?? []).map((p: any) => ({
             value: p.id,
             label: p.name,
           }))
@@ -172,12 +187,11 @@ const AssignAssignment: React.FC<AssignAssignmentProps> = ({ assignmentId }) => 
         if (!res.ok) throw new Error();
 
         const json = await res.json();
-        const list = json?.data ?? [];
-
+        const list = json ?? [];
         setStudents(
           list.map((s: any) => ({
             value: s.id,
-            label: `${s.roll_no ?? ''} ${s.first_name ?? ''} ${s.last_name ?? ''}`.trim(),
+            label: `${s.name ?? ''}`.trim(),
           }))
         );
       } catch {
@@ -192,11 +206,59 @@ const AssignAssignment: React.FC<AssignAssignmentProps> = ({ assignmentId }) => 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // validation schema (Yup)
+    const schema = yup.object({
+      organization: yup.object().required('Organization is required'),
+      program: yup.object().required('Program is required'),
+      session: yup.object().required('Session is required'),
+      semester: yup.object().required('Semester is required'),
+      selectedStudents: yup.array().min(1, 'Select at least one student'),
+      dueDate: yup.string().nullable(),
+      notes: yup.string().nullable(),
+    });
+
+    try {
+      await schema.validate(
+        { organization, program, session, semester, selectedStudents, dueDate, notes },
+        { abortEarly: false }
+      );
+
+      // clear previous errors when validation passes
+      setErrors({});
+      setError(null);
+    } catch (validationErr: any) {
+      // build field-level error map and show first message as toast
+      const errMap: Record<string, string> = {};
+      if (validationErr.inner && validationErr.inner.length) {
+        validationErr.inner.forEach((vi: any) => {
+          if (vi?.path) errMap[vi.path] = vi.message;
+        });
+      } else if (validationErr.message) {
+        errMap.general = validationErr.message;
+      }
+      setErrors(errMap);
+      const firstMsg = Object.values(errMap)[0] ?? 'Validation error';
+      toast.error(firstMsg);
+      setError(firstMsg);
+      return;
+    }
+
+    // runtime guard for TypeScript / safety: ensure required filter objects are present
+    if (!organization || !program || !session || !semester) {
+      const msg = 'Please select Organization, Program, Session and Semester';
+      toast.error(msg);
+      setError(msg);
+      setErrors({
+        organization: !organization ? 'Organization is required' : '',
+        program: !program ? 'Program is required' : '',
+        session: !session ? 'Session is required' : '',
+        semester: !semester ? 'Semester is required' : '',
+      });
+      return;
+    }
+
     if (!assignmentId) return toast.error('Assignment ID missing');
-    if (!organization || !program || !session || !semester)
-      return toast.error('Please select all filters');
-    if (selectedStudents.length === 0)
-      return toast.error('Please select students');
+    // payload validated by yup above
 
     setSubmitting(true);
 
@@ -251,63 +313,114 @@ const AssignAssignment: React.FC<AssignAssignmentProps> = ({ assignmentId }) => 
 
             {/* Filters */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Select
-                placeholder="Organization"
-                options={organizations}
-                value={organization}
-                onChange={(v) => {
-                  setOrganization(v);
-                  setProgram(null);
-                }}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Organization <span className="text-red-600 ml-1">*</span>
+                </label>
+                <Select
+                  placeholder="Select organization"
+                  options={organizations}
+                  value={organization}
+                  onChange={(v) => {
+                    setOrganization(v);
+                    setProgram(null);
+                    setErrors(prev => { const p = { ...prev }; delete p.organization; delete p.program; return p; });
+                  }}
+                  styles={selectErrorStyles(!!errors.organization)}
+                  aria-invalid={!!errors.organization}
+                />
+                {errors.organization && <div className="text-sm text-red-600 mt-1">{errors.organization}</div>}
+              </div>
 
-              <Select
-                placeholder="Program"
-                options={programs}
-                value={program}
-                onChange={(v) => setProgram(v)}
-                
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Program <span className="text-red-600 ml-1">*</span>
+                </label>
+                <Select
+                  placeholder="Select program"
+                  options={programs}
+                  value={program}
+                  onChange={(v) => { setProgram(v); setErrors(prev => { const p = { ...prev }; delete p.program; return p; }); }}
+                  styles={selectErrorStyles(!!errors.program)}
+                  isDisabled={!programs.length}
+                  aria-invalid={!!errors.program}
+                />
+                {errors.program && <div className="text-sm text-red-600 mt-1">{errors.program}</div>}
+              </div>
 
-              <Select
-                placeholder="Session"
-                options={sessions}
-                value={session}
-                onChange={(v) => setSession(v)}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Session <span className="text-red-600 ml-1">*</span>
+                </label>
+                <Select
+                  placeholder="Select session"
+                  options={sessions}
+                  value={session}
+                  onChange={(v) => { setSession(v); setErrors(prev => { const p = { ...prev }; delete p.session; return p; }); }}
+                  styles={selectErrorStyles(!!errors.session)}
+                  aria-invalid={!!errors.session}
+                />
+                {errors.session && <div className="text-sm text-red-600 mt-1">{errors.session}</div>}
+              </div>
 
-              <Select
-                placeholder="Semester"
-                options={semesters}
-                value={semester}
-                onChange={(v) => setSemester(v)}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Semester <span className="text-red-600 ml-1">*</span>
+                </label>
+                <Select
+                  placeholder="Select semester"
+                  options={semesters}
+                  value={semester}
+                  onChange={(v) => { setSemester(v); setErrors(prev => { const p = { ...prev }; delete p.semester; return p; }); }}
+                  styles={selectErrorStyles(!!errors.semester)}
+                  aria-invalid={!!errors.semester}
+                />
+                {errors.semester && <div className="text-sm text-red-600 mt-1">{errors.semester}</div>}
+              </div>
             </div>
 
             {/* Students */}
-            <Select
-              isMulti
-              options={students}
-              value={selectedStudents}
-              onChange={(v) => setSelectedStudents(v as Option[])}
-              placeholder="Select students"
-              isDisabled={!students.length}
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Students <span className="text-red-600 ml-1">*</span>
+              </label>
+              <Select
+                isMulti
+                options={students}
+                value={selectedStudents}
+                onChange={(v) => { setSelectedStudents(v as Option[]); setErrors(prev => { const p = { ...prev }; delete p.selectedStudents; return p; }); }}
+                placeholder="Select students"
+                isDisabled={!students.length}
+                styles={selectErrorStyles(!!errors.selectedStudents)}
+                aria-invalid={!!errors.selectedStudents}
+              />
+              {errors.selectedStudents && <div className="text-sm text-red-600 mt-1">{errors.selectedStudents}</div>}
+            </div>
 
-            <input
-              type="datetime-local"
-              className="w-full rounded-md border px-3 py-2 text-sm"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Due date</label>
+              <input
+                type="datetime-local"
+                className={`w-full rounded-md px-3 py-2 text-sm border ${errors.dueDate ? 'border-red-600' : 'border-gray-200'}`}
+                value={dueDate}
+                onChange={(e) => { setDueDate(e.target.value); setErrors(prev => { const p = { ...prev }; delete p.dueDate; return p; }); }}
+                aria-invalid={!!errors.dueDate}
+              />
+              {errors.dueDate && <div className="text-sm text-red-600 mt-1">{errors.dueDate}</div>}
+            </div>
 
-            <textarea
-              rows={4}
-              className="w-full rounded-md border px-3 py-2 text-sm"
-              placeholder="Notes (optional)"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
+              <textarea
+                rows={4}
+                className={`w-full rounded-md px-3 py-2 text-sm border ${errors.notes ? 'border-red-600' : 'border-gray-200'}`}
+                placeholder="Notes (optional)"
+                value={notes}
+                onChange={(e) => { setNotes(e.target.value); setErrors(prev => { const p = { ...prev }; delete p.notes; return p; }); }}
+                aria-invalid={!!errors.notes}
+              />
+              {errors.notes && <div className="text-sm text-red-600 mt-1">{errors.notes}</div>}
+            </div>
 
             {error && <div className="text-sm text-red-600">{error}</div>}
 
